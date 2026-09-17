@@ -1,0 +1,398 @@
+---
+/**
+ * Masaż relaksacyjny: jedyna podstrona zabiegowa pisana ręcznie, poza
+ * szablonem [usluga].astro. Treść napisana pod frazę „masaż relaksacyjny
+ * Poznań" i pod cytowalność w wyszukiwaniu generatywnym, więc każdy nagłówek
+ * jest pytaniem, a pierwszy akapit pod nim odpowiada na nie samodzielnie.
+ */
+import { Image } from 'astro:assets'
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from '../components/Naglowek2.astro'
+import Cta from '../components/Cta.astro'
+import { firma, masaze, sciezkaMasazu } from '../config'
+import { zdjeciaMasazy, zdjecia } from '../data/zdjecia'
+import { ikony } from '../data/ikony'
+
+const BAZA = 'https://rozluznijsie.pl'
+const ADRES = `${firma.ulica}, ${firma.kod} ${firma.miasto}`
+
+const pytania = [
+  {
+    pytanie: 'Jak długo trwa masaż relaksacyjny?',
+    html: `Sesja trwa <strong>60 albo 90 minut</strong>. Godzina wystarcza na plecy, kark, barki i nogi.
+      Półtorej godziny daje czas na dołożenie stóp, dłoni oraz głowy i na wolniejsze tempo pracy,
+      więc <strong>przy silnym stresie i problemach ze snem sprawdza się lepiej</strong>.
+      Do tego doliczamy kilka minut na krótką rozmowę przed zabiegiem.`,
+  },
+  {
+    pytanie: 'Ile kosztuje masaż relaksacyjny w Poznaniu?',
+    html: `W gabinecie na Piątkowie <strong>60 minut kosztuje 160 zł</strong>, a <strong>90 minut 210 zł</strong>.
+      Przy pakiecie czterech sesji cena spada do <strong>140 zł za godzinę</strong> i <strong>190 zł za półtorej godziny</strong>.
+      Pełne stawki wszystkich zabiegów są w <a href="/cennik-masazu-poznan">cenniku masażu</a>.`,
+  },
+  {
+    pytanie: 'Jak często warto korzystać z masażu relaksacyjnego?',
+    html: `Przy utrzymującym się napięciu i gorszym śnie pierwsze efekty daje <strong>seria czterech sesji
+      w odstępie tygodnia</strong>. Później wystarcza zwykle <strong>jedna wizyta na dwa do czterech tygodni</strong>.
+      Jednorazowy masaż też ma sens, tylko działa krócej.`,
+  },
+  {
+    pytanie: 'Czy masaż relaksacyjny boli?',
+    html: `Nie. To zabieg prowadzony <strong>niskim i średnim naciskiem</strong>, bez pracy na punktach spustowych
+      i bez rozbijania zrostów. Jeśli szukasz mocniejszej pracy na konkretnym miejscu, lepszy będzie
+      <a href="/masaze/tkanek-glebokich-poznan">masaż tkanek głębokich</a> albo
+      <a href="/masaze/klasyczny-poznan">masaż klasyczny</a>.`,
+  },
+  {
+    pytanie: 'Czym masaż relaksacyjny różni się od klasycznego?',
+    html: `Różnica jest w celu i w tempie. Relaksacyjny <strong>wycisza układ nerwowy</strong>, płynie równym
+      rytmem przez całe ciało i prawie nie zatrzymuje się na pojedynczym mięśniu. Klasyczny
+      <strong>pracuje na konkretnym napięciu</strong>, mocniej i punktowo. Przy bólu karku po pracy przy biurku
+      częściej wybieramy klasyczny, przy przemęczeniu i bezsenności relaksacyjny.`,
+  },
+  {
+    pytanie: 'Co przynieść na wizytę i czy trzeba się rozbierać?',
+    html: `Wystarczysz Ty, ręczniki i olej są nasze. Rozbierasz się <strong>do bielizny</strong>, a części ciała,
+      na których akurat nie pracujemy, pozostają przykryte. Jeśli to Twoja pierwsza wizyta, zajrzyj na stronę
+      <a href="/pierwsza-wizyta">pierwsza wizyta</a>.`,
+  },
+  {
+    pytanie: 'Czy masaż relaksacyjny jest dostępny z dojazdem do domu?',
+    html: `Tak, dojeżdżamy na terenie Poznania ze stołem i z olejem. Obsługiwane dzielnice i zasady dojazdu
+      opisaliśmy na stronie <a href="/dojazd">masaż z dojazdem</a>. Zabieg u nas w gabinecie kosztuje mniej,
+      bo nie dochodzi czas przejazdu.`,
+  },
+]
+
+const uslugaSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': BAZA + '/masaz-relaksacyjny-poznan#usluga',
+  name: 'Masaż relaksacyjny Poznań',
+  serviceType: 'Masaż relaksacyjny',
+  description:
+    'Masaż relaksacyjny całego ciała w gabinecie na Piątkowie w Poznaniu. Wolne tempo, niski i średni nacisk, praca nad wyciszeniem układu nerwowego i poprawą jakości snu. Sesja 60 lub 90 minut, dostępny także z dojazdem na terenie Poznania.',
+  url: BAZA + '/masaz-relaksacyjny-poznan',
+  provider: { '@id': BAZA + '/#gabinet' },
+  areaServed: [
+    { '@type': 'City', name: 'Poznań' },
+    ...['Piątkowo', 'Winogrady', 'Winiary', 'Podolany', 'Sołacz', 'Jeżyce', 'Grunwald', 'Ogrody'].map((n) => ({
+      '@type': 'Place',
+      name: n,
+    })),
+  ],
+  availableChannel: {
+    '@type': 'ServiceChannel',
+    serviceUrl: firma.booksy,
+    servicePhone: '+48572317407',
+    serviceLocation: {
+      '@type': 'Place',
+      name: firma.pelnaNazwa,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: firma.ulica,
+        postalCode: firma.kod,
+        addressLocality: 'Poznań',
+        addressRegion: 'wielkopolskie',
+        addressCountry: 'PL',
+      },
+      geo: { '@type': 'GeoCoordinates', latitude: 52.430498, longitude: 16.9164255 },
+    },
+  },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Masaż relaksacyjny w gabinecie Rozluźnij Się',
+    itemListElement: [
+      { nazwa: 'Masaż relaksacyjny 60 minut', cena: '160' },
+      { nazwa: 'Masaż relaksacyjny 90 minut', cena: '210' },
+      { nazwa: 'Pakiet 4 masaży relaksacyjnych po 60 minut', cena: '560' },
+      { nazwa: 'Pakiet 4 masaży relaksacyjnych po 90 minut', cena: '760' },
+    ].map((o) => ({
+      '@type': 'Offer',
+      priceCurrency: 'PLN',
+      price: o.cena,
+      availability: 'https://schema.org/InStock',
+      url: BAZA + '/cennik-masazu-poznan',
+      itemOffered: {
+        '@type': 'Service',
+        name: o.nazwa,
+        serviceType: 'Masaż relaksacyjny',
+        provider: { '@id': BAZA + '/#gabinet' },
+      },
+    })),
+  },
+}
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': BAZA + '/masaz-relaksacyjny-poznan#faq',
+  mainEntity: pytania.map((p) => ({
+    '@type': 'Question',
+    name: p.pytanie,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: p.html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+    },
+  })),
+}
+
+const pozostale = masaze.filter((m) => m.slug !== 'relaksacyjny-poznan').slice(0, 3)
+---
+
+<Layout
+  tytul="Masaż relaksacyjny Poznań | gabinet Rozluźnij Się Piątkowo"
+  opis="Masaż relaksacyjny w Poznaniu na Piątkowie. Sesja 60 lub 90 minut, od 160 zł. Wycisza układ nerwowy i poprawia sen. Rezerwacja przez Booksy albo telefonicznie."
+>
+  <Naglowek2
+    etykieta="Masaż"
+    tytul="Masaż relaksacyjny Poznań"
+    opis="Wolne, równe tempo i praca na całym ciele. Sesja, po której zwalnia układ nerwowy, a nie tylko mięśnie na kilka godzin miękną."
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="blok-tresci">
+        <div class="proza">
+          <p>
+            <strong>Masaż relaksacyjny</strong> to zabieg całego ciała prowadzony wolnym, powtarzalnym rytmem,
+            niskim i średnim naciskiem. Masażysta pracuje głównie głaskaniem, rozcieraniem i spokojnym
+            ugniataniem, prowadząc dłonie w kierunku serca. Celem nie jest rozbicie pojedynczego zgrubienia
+            w mięśniu, tylko <strong>przestawienie organizmu z trybu czuwania na tryb odpoczynku</strong>.
+            Dlatego tempo jest stałe i podporządkowane oddechowi, a zabieg nie ma miejsc, w których nagle
+            robi się nieprzyjemnie.
+          </p>
+          <p>
+            W gabinecie przy <strong>ul. Piątkowskiej 94 w Poznaniu</strong> wykonują go
+            <a href="/o-nas/nicole-stokowska">Nicole Stokowska</a> i
+            <a href="/o-nas/kamil-jedrzejewski">Kamil Jędrzejewski</a>, oboje jako technik masażysta.
+            Zabieg dobieramy po krótkiej rozmowie, bo część osób przychodzi po wyciszenie, a część
+            po pracę z konkretnym napięciem, i wtedy lepszy bywa
+            <a href="/masaze/klasyczny-poznan">masaż klasyczny</a>.
+          </p>
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjeciaMasazy['relaksacyjny-poznan']}
+          alt="Masaż relaksacyjny pleców wykonywany spokojnymi ruchami w gabinecie Rozluźnij Się na Piątkowie w Poznaniu"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak długo trwa masaż relaksacyjny</h2>
+        <div class="proza">
+          <p>
+            Sesja trwa <strong>60 albo 90 minut</strong>. W godzinę mieszczą się plecy, kark, barki i nogi,
+            czyli obszary, w których napięcie zbiera się najszybciej. <strong>Półtorej godziny</strong> daje
+            czas na stopy, dłonie oraz głowę i pozwala pracować wolniej, a to właśnie wolniejsze tempo
+            decyduje o tym, jak głęboko uda się wyciszyć. Osobom, które przychodzą z problemami ze snem,
+            zwykle proponujemy dłuższą wersję.
+          </p>
+          <p>
+            Do czasu zabiegu doliczamy kilka minut na rozmowę, pytamy o samopoczucie, przyjmowane leki
+            i miejsca, których nie chcesz dotykać. Po masażu warto zostawić sobie <strong>kwadrans
+            spokojnego wyjścia</strong>, bez pośpiechu i telefonu.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Ile kosztuje masaż relaksacyjny w Poznaniu</h2>
+        <div class="proza">
+          <p>
+            <strong>60 minut kosztuje 160 zł</strong>, <strong>90 minut kosztuje 210 zł</strong>. Przy
+            <strong>pakiecie czterech sesji</strong> cena spada do <strong>140 zł za godzinę</strong>
+            i <strong>190 zł za półtorej godziny</strong>. Termin ważności pakietu ustalamy przy pierwszej
+            wizycie. Stawki wszystkich zabiegów są w
+            <a href="/cennik-masazu-poznan">cenniku masażu w Poznaniu</a>.
+          </p>
+          <p>
+            Masaż relaksacyjny bywa też prezentem, więc na życzenie wystawiamy
+            <a href="/vouchery/podarunkowy">voucher podarunkowy</a> na wybrany czas trwania sesji.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jakie są efekty masażu relaksacyjnego</h2>
+        <div class="proza">
+          <p>
+            Efekty, o których klienci mówią najczęściej, to <strong>spokojniejszy sen</strong>,
+            <strong>mniejsze napięcie karku i barków</strong> oraz wyraźnie niższy poziom pobudzenia
+            wieczorem. Wolne, rytmiczne bodźce na skórze i powięzi obniżają napięcie mięśniowe
+            i spowalniają oddech, a rozgrzana tkanka lepiej się ukrwia, więc mięśnie przestają trzymać
+            stałą gotowość do pracy.
+          </p>
+          <p>
+            Po jednej sesji efekt utrzymuje się zwykle od dwóch do czterech dni. <strong>Seria czterech
+            masaży w odstępie tygodnia</strong> daje trwalszą zmianę, bo organizm dostaje powtarzalny
+            sygnał, a nie pojedynczy impuls. Jeśli głównym problemem jest sen, warto przeczytać tekst
+            o tym, <a href="/blog/masaz-a-sen">jak masaż wpływa na sen</a>, a przy napięciu na tle
+            stresu wpis o <a href="/blog/stres-a-bol">stresie i bólu</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Dla kogo jest masaż relaksacyjny</h2>
+        <div class="proza">
+          <p>
+            Najczęściej wybierają go osoby po długim okresie <strong>pracy przy biurku</strong>, w stresie
+            albo po prostu przemęczone. Sprawdza się przy <strong>napięciowych bólach głowy</strong>,
+            trudnościach z zasypianiem, uczuciu sztywności karku i ramion oraz wtedy, gdy ciało nie boli
+            wyraźnie, ale nic w nim nie odpuszcza.
+          </p>
+          <p>
+            Nie jest natomiast zabiegiem pierwszego wyboru przy konkretnym, punktowym bólu.
+            Wtedy lepiej sprawdzi się <a href="/masaze/tkanek-glebokich-poznan">masaż tkanek głębokich</a>
+            albo <a href="/masaze/glowy-i-barki-poznan">masaż głowy i obręczy barkowej</a>. Osoby trenujące
+            regularnie częściej korzystają z <a href="/masaze/sportowy-poznan">masażu sportowego</a>.
+            Jeśli nie wiesz, co wybrać, pomoże <a href="/alfabet-dolegliwosci">alfabet dolegliwości</a>
+            albo krótka rozmowa telefoniczna.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak wygląda wizyta</h2>
+        <div class="proza">
+          <p>
+            Zaczynamy od <strong>krótkiego wywiadu</strong>, potem zostawiamy Cię samego w gabinecie,
+            żebyś w spokoju położył się na stole i przykrył. W trakcie zabiegu pracujemy na
+            <strong>ciepłym oleju</strong>, przy przyciszonej muzyce i zasłoniętych oknach, a odkryta jest
+            wyłącznie ta część ciała, którą akurat masujemy. Możesz w każdej chwili powiedzieć, że nacisk
+            jest za mocny albo za słaby, i to naprawdę pomaga.
+          </p>
+          <p>
+            Po masażu dostajesz wodę i kilka minut na dojście do siebie. <strong>Tego dnia lepiej odpuścić
+            trening i alkohol</strong>, a wypić więcej wody. Szczegóły dotyczące przygotowania opisaliśmy
+            na stronie <a href="/pierwsza-wizyta">pierwsza wizyta</a>.
+          </p>
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecia.gabinet}
+          alt="Wnętrze gabinetu masażu Rozluźnij Się w Poznaniu, stół do masażu przygotowany do sesji relaksacyjnej"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Przeciwwskazania</h2>
+        <div class="proza">
+          <p>
+            Masażu nie wykonujemy przy <strong>gorączce i infekcji</strong>, świeżych urazach, stanach
+            zapalnych, zakrzepicy i żylakach w miejscu pracy, chorobach skóry w fazie aktywnej oraz
+            bezpośrednio po zabiegach operacyjnych. Przy chorobach przewlekłych, nowotworowych
+            i w ciąży <strong>potrzebna jest zgoda lekarza prowadzącego</strong>.
+          </p>
+          <p>
+            Jeśli masz wątpliwość, zadzwoń przed rezerwacją pod
+            <a href={firma.telefonHref}>{firma.telefon}</a>. Łatwiej ustalić to w dwie minuty rozmowy
+            niż odwoływać wizytę na miejscu.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Najczęstsze pytania o masaż relaksacyjny</h2>
+        <div class="faq">
+          {pytania.map((p, i) => (
+            <details open={i === 0}>
+              <summary>
+                {p.pytanie}
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              </summary>
+              <div class="faq-odpowiedz proza" set:html={p.html} />
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Zobacz też</p>
+      <h2 class="tytul-sekcji">Inne masaże</h2>
+      <div class="karty">
+        {pozostale.map((m) => (
+          <a class="karta" href={sciezkaMasazu(m.slug)}>
+            {m.plakietka && <span class="karta-plakietka">{m.plakietka}</span>}
+            <div class="karta-foto">
+              <Image src={zdjeciaMasazy[m.slug]} alt={m.alt} widths={[380, 640]} width={640} quality={70} sizes="(max-width: 900px) 92vw, 30vw" loading="lazy" />
+            </div>
+            <div class="karta-tresc">
+              <h3 class="karta-tytul">{m.nazwa}</h3>
+              <span class="karta-wiecej">Zobacz szczegóły →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <p class="srodkowany" style="display:flex;justify-content:center;margin-top:34px">
+        <a class="btn btn-obrys" href="/cennik-masazu-poznan"><span set:html={ikony.cennik} />Zobacz pełny cennik</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Gdzie robimy masaż relaksacyjny w Poznaniu i jak do nas dojechać</h2>
+        <div class="proza">
+          <p>
+            Gabinet działa przy <strong>{ADRES}</strong>, na granicy Piątkowa i Winiar, w północnej
+            części miasta. Wejście oznaczone jest literą C, a <strong>pod budynkiem zaparkujesz
+            bez opłat</strong>, bo to już poza strefą płatnego parkowania.
+          </p>
+          <p>
+            <strong>Autem z centrum Poznania</strong> dojazd zajmuje szacunkowo <strong>12 do 18 minut</strong>,
+            zależnie od pory dnia, najprościej ulicą Niestachowską i dalej Piątkowską.
+            <strong>Tramwajem</strong> dojedziesz liniami <strong>9 i 11</strong>, które kończą bieg
+            na <strong>pętli Piątkowska</strong>, a stamtąd do gabinetu jest kilka minut spacerem.
+            Jeśli wolisz, żeby to masażysta przyjechał do Ciebie, sprawdź
+            <a href="/dojazd">masaż z dojazdem w Poznaniu</a>, między innymi na
+            <a href="/dojazd/piatkowo-poznan">Piątkowo</a> i <a href="/dojazd/winiary-poznan">Winiary</a>.
+          </p>
+          <p>
+            Termin zarezerwujesz <a href={firma.booksy} target="_blank" rel="noopener noreferrer">przez Booksy</a>,
+            telefonicznie pod <a href={firma.telefonHref}>{firma.telefon}</a> albo mailowo przez
+            <a href="/kontakt">stronę kontaktu</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mapa-pelna">
+    <h2 class="mapa-tytul">Gabinet masażu na Piątkowie</h2>
+    <iframe
+      src={firma.mapa}
+      title="Mapa dojazdu do gabinetu masażu relaksacyjnego Rozluźnij Się przy ulicy Piątkowskiej 94 w Poznaniu"
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    ></iframe>
+  </section>
+
+  <Cta
+    tytul="Zarezerwuj masaż relaksacyjny"
+    opis="Wybierz 60 albo 90 minut i zarezerwuj termin przez Booksy. Jeśli wolisz najpierw dopytać, po prostu zadzwoń."
+  />
+
+  <script type="application/ld+json" set:html={JSON.stringify(uslugaSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</Layout>

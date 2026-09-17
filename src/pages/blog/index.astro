@@ -1,0 +1,389 @@
+---
+/**
+ * Lista wpisów w układzie redakcyjnym: po lewej siatka artykułów 3 × N,
+ * po prawej wąska kolumna z autorami i kontaktem, przyklejona przy scrollu.
+ * Dane autorów i kontaktu idą z `config.ts`, nic nie jest wpisane na sztywno.
+ */
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Cta from '../../components/Cta.astro'
+import MetaWpisu from '../../components/MetaWpisu.astro'
+import Social from '../../components/Social.astro'
+import { wpisyOdNajnowszych } from '../../data/strony'
+import { miniaturyWpisow, zdjecia } from '../../data/zdjecia'
+import { firma } from '../../config'
+import { ikony } from '../../data/ikony'
+
+const najnowszySlug = wpisyOdNajnowszych[0].slug
+
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog gabinetu masażu Rozluźnij Się',
+  url: 'https://rozluznijsie.pl/blog',
+  inLanguage: 'pl-PL',
+  publisher: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+  blogPost: wpisyOdNajnowszych.map((w) => ({
+    '@type': 'BlogPosting',
+    headline: w.tytul,
+    description: w.lead,
+    datePublished: w.data,
+    url: `https://rozluznijsie.pl/blog/${w.slug}`,
+  })),
+}
+---
+
+<Layout
+  tytul="Blog o masażu Poznań | Rozluźnij Się"
+  opis="Baza wiedzy gabinetu masażu w Poznaniu: ból pleców i karku praca siedząca regeneracja po treningu sen i stres. Konkretnie bez marketingowej waty."
+>
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="blog-uklad">
+        <div class="blog-lista">
+          <div class="wpisy-naglowek">
+            <h1 class="blog-tytul">Blog</h1>
+            <p class="wpisy-licznik">{wpisyOdNajnowszych.length} artykułów</p>
+          </div>
+
+          <div class="wpisy-siatka">
+            {wpisyOdNajnowszych.map((w, i) => (
+              <article class="wpis-karta">
+                <a class="wpis-foto" href={`/blog/${w.slug}`} tabindex="-1" aria-hidden="true">
+                  <Image
+                    src={miniaturyWpisow[w.slug]}
+                    alt=""
+                    widths={[380, 640]}
+                    width={640}
+                    quality={70}
+                    sizes="(max-width: 700px) 92vw, (max-width: 1100px) 44vw, 24vw"
+                    loading={i < 3 ? 'eager' : 'lazy'}
+                  />
+                  {w.slug === najnowszySlug && <span class="wpis-plakietka">Najnowszy</span>}
+                </a>
+
+                <div class="wpis-tresc">
+                  <h3 class="wpis-tytul">
+                    <a href={`/blog/${w.slug}`}>{w.tytul}</a>
+                  </h3>
+                  <p class="wpis-lead">{w.lead}</p>
+                  <MetaWpisu wpis={w} />
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div class="proza blog-dopisek">
+            <p>
+              Szukasz konkretnej dolegliwości? Zajrzyj do <a href="/alfabet-dolegliwosci">alfabetu dolegliwości</a>.
+              Masz pytanie o samą wizytę? Odpowiedzi zebraliśmy w <a href="/faq">najczęstszych pytaniach</a>.
+            </p>
+          </div>
+        </div>
+
+        <aside class="blog-panel" aria-label="O autorach i kontakt">
+          <div class="blog-panel-srodek">
+            <p class="etykieta">Piszemy to my</p>
+
+            <div class="panel-autorzy">
+              <a class="panel-autor" href="/o-nas/nicole-stokowska">
+                <Image src={zdjecia.nicole} alt="Nicole Stokowska" width={140} height={140} quality={82} loading="lazy" />
+                <span>
+                  <strong>Nicole Stokowska</strong>
+                  <small>Masaże relaksacyjne, Kobido</small>
+                </span>
+              </a>
+              <a class="panel-autor" href="/o-nas/kamil-jedrzejewski">
+                <Image src={zdjecia.kamil} alt="Kamil Jędrzejewski" width={140} height={140} quality={82} loading="lazy" />
+                <span>
+                  <strong>Kamil Jędrzejewski</strong>
+                  <small>Techniki klasyczne, sportowe, tkanki głębokie</small>
+                </span>
+              </a>
+            </div>
+
+            <p class="panel-bio">
+              Prowadzimy gabinet na Piątkowie i pracujemy z tym, z czym ludzie przychodzą na co dzień:
+              karkiem po ośmiu godzinach przy monitorze, plecami po przeprowadzce, nogami po maratonie.
+              Na blogu opisujemy to, o co najczęściej pytacie na wizytach.
+            </p>
+
+            <p class="panel-naglowek">Social media</p>
+            <Social klasa="panel-social" />
+
+            <p class="panel-naglowek">Kontakt</p>
+            <ul class="panel-kontakt">
+              <li>
+                <span>Telefon</span>
+                <a href={firma.telefonHref}>{firma.telefon}</a>
+              </li>
+              <li>
+                <span>E-mail</span>
+                <a href={firma.emailHref}>{firma.email}</a>
+              </li>
+              <li>
+                <span>Gabinet</span>
+                <a class="panel-adres" href="/kontakt">{firma.ulica.replace('ul. ', '')}, {firma.miasto}</a>
+              </li>
+            </ul>
+
+            <a class="btn btn-glowny panel-cta" href={firma.booksy} target="_blank" rel="noopener noreferrer">
+              <span set:html={ikony.kalendarz} />Zarezerwuj wizytę
+            </a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+
+  <script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
+</Layout>
+
+<style>
+  /* ========================= UKŁAD DWUKOLUMNOWY =========================
+     Lewa kolumna trzyma siatkę artykułów, prawa panel autorów. Proporcja
+     3:1, czyli 75% na treść i 25% na panel.
+     ==================================================================== */
+  .blog-uklad {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    align-items: start;
+    gap: 48px;
+  }
+
+  /* ============================ NAGŁÓWEK LISTY ========================== */
+  .wpisy-naglowek {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 34px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--linia);
+  }
+
+  .blog-tytul {
+    margin: 0;
+    font-size: clamp(30px, 3vw, 42px);
+    color: var(--zielen-ciemna);
+  }
+
+  .wpisy-licznik {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--szary);
+    white-space: nowrap;
+  }
+
+  /* ====================== SIATKA ARTYKUŁÓW 3 × N ========================
+     Kolumny są równe, a każda karta to flex w pionie, więc tytuły
+     zaczynają się na tej samej wysokości, a metryczki równają się na dole.
+     ==================================================================== */
+  .wpisy-siatka {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 34px 26px;
+  }
+
+  .wpis-karta {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .wpis-foto {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--zielen-jasna);
+  }
+
+  .wpis-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .wpis-karta:hover .wpis-foto img { transform: scale(1.04); }
+
+  .wpis-plakietka {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--biel);
+    background: var(--terakota);
+  }
+
+  .wpis-tresc {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 9px;
+  }
+
+  .wpis-tytul {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.3;
+    color: var(--zielen-ciemna);
+    /* Maksymalnie trzy linie, żeby dłuższy tytuł nie rozpychał rzędu. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .wpis-tytul a { transition: color 0.18s ease; }
+  .wpis-karta:hover .wpis-tytul a { color: var(--terakota-ciemna); }
+
+  .wpis-lead {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: left;
+    color: var(--szary);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Metryczka siada na dole karty, niezależnie od długości tytułu i leadu. */
+  .wpis-tresc :global(.meta-wpisu) { margin: auto 0 0; padding-top: 4px; }
+
+  .blog-dopisek { margin-top: 46px; }
+  .blog-dopisek p { text-align: left; }
+
+  /* ========================== PANEL AUTORÓW ============================= */
+  .blog-panel { position: relative; }
+
+  .blog-panel-srodek {
+    position: sticky;
+    top: calc(var(--naglowek-h) + 24px);
+    padding: 26px 24px 28px;
+    border: 1px solid var(--linia);
+    border-radius: 20px;
+    background: var(--tlo);
+  }
+
+  .panel-autorzy { display: grid; gap: 16px; margin: 14px 0 18px; }
+
+  .panel-autor {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    align-items: center;
+    gap: 13px;
+  }
+
+  .panel-autor img {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+
+  .panel-autor strong {
+    display: block;
+    font-family: 'Lato', system-ui, sans-serif;
+    font-size: 15px;
+    color: var(--zielen-ciemna);
+    transition: color 0.18s ease;
+  }
+  .panel-autor:hover strong { color: var(--terakota-ciemna); }
+
+  .panel-autor small { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.4; color: var(--szary); }
+
+  .panel-bio {
+    margin: 0 0 22px;
+    font-size: 14px;
+    line-height: 1.65;
+    text-align: left;
+    color: var(--szary);
+  }
+
+  .panel-naglowek {
+    margin: 0 0 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--linia);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--zielen-ciemna);
+  }
+
+  .blog-panel :global(.panel-social) { margin-bottom: 4px; }
+
+  .panel-kontakt {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 22px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .panel-kontakt li { display: grid; gap: 2px; }
+
+  .panel-kontakt span {
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--szary);
+  }
+
+  .panel-kontakt a {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--zielen);
+    transition: color 0.18s ease;
+  }
+  .panel-kontakt a:hover { color: var(--terakota-ciemna); }
+
+  /* Adres jest najdłuższy z trzech wierszy, więc dostaje mniejszy stopień,
+     żeby zmieścił się w jednej linii w wąskiej kolumnie. */
+  .panel-adres { font-size: 12.5px; letter-spacing: -0.01em; white-space: nowrap; }
+
+  .panel-cta { width: 100%; height: 48px; font-size: 14.5px; }
+
+  /* ============================ RESPONSYWNOŚĆ =========================== */
+  @media (max-width: 1100px) {
+    .blog-uklad { grid-template-columns: 2fr 1fr; gap: 32px; }
+    .wpisy-siatka { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 860px) {
+    /* Panel schodzi pod listę i przestaje być przyklejony. */
+    .blog-uklad { grid-template-columns: 1fr; gap: 44px; }
+    .blog-panel-srodek { position: static; }
+    .panel-autorzy { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 620px) {
+    .wpisy-siatka { grid-template-columns: 1fr; gap: 28px; }
+    .panel-autorzy { grid-template-columns: 1fr; }
+    .wpisy-naglowek { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wpis-foto img { transition: none; }
+    .wpis-karta:hover .wpis-foto img { transform: none; }
+  }
+</style>

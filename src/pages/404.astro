@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from '../components/Naglowek2.astro'
+---
+
+<Layout tytul="Nie ma takiej strony | Rozluźnij Się Poznań" opis="Pod tym adresem nic nie ma. Przejdź do oferty masaży cennika albo kontaktu. Gabinet masażu w Poznaniu.">
+  <Naglowek2
+    etykieta="Błąd 404"
+    tytul="Tej strony tu nie ma"
+    opis="Adres mógł się zmienić przy przebudowie serwisu. Poniżej najczęściej odwiedzane miejsca."
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="wpisy">
+        <a class="wpis" href="/masaze"><h3>Masaże</h3><p>Wszystkie zabiegi, które wykonujemy.</p><span>Zobacz →</span></a>
+        <a class="wpis" href="/cennik-masazu-poznan"><h3>Cennik</h3><p>Ceny pojedyncze i pakiety.</p><span>Zobacz →</span></a>
+        <a class="wpis" href="/dojazd"><h3>Masaż z dojazdem</h3><p>Przyjeżdżamy z własnym stołem.</p><span>Zobacz →</span></a>
+        <a class="wpis" href="/kontakt"><h3>Kontakt</h3><p>Telefon, adres i mapa dojazdu.</p><span>Zobacz →</span></a>
+      </div>
+    </div>
+  </section>
+</Layout>

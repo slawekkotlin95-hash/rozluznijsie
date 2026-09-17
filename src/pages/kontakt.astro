@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from '../components/Naglowek2.astro'
+import Tresc from '../components/Tresc.astro'
+import Formularz from '../components/Formularz.astro'
+import { firma } from '../config'
+import { sekcje } from '../data/tresc'
+import { ikony } from '../data/ikony'
+---
+
+<Layout
+  tytul="Kontakt | gabinet masażu Poznań Rozluźnij Się"
+  opis="Kontakt do gabinetu masażu w Poznaniu: ul. Piątkowska 94 wejście C telefon 572 317 407 rozluznijsiepoznan@gmail.com. Rezerwacja przez Booksy."
+>
+  <Naglowek2
+    etykieta="Kontakt"
+    tytul="Masz pytania?"
+    opis="Najszybciej zarezerwujesz termin przez Booksy. Możesz też zadzwonić albo napisać maila."
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="dwie-kolumny">
+        <div class="proza">
+          <h2 class="tytul-tresci">Dane kontaktowe</h2>
+          <p>
+            <strong>Adres gabinetu</strong><br />
+            {firma.ulica}<br />
+            {firma.kod} {firma.miasto}
+          </p>
+          <p>
+            <strong>Telefon</strong><br />
+            <a href={firma.telefonHref}>{firma.telefon}</a>
+          </p>
+          <p>
+            <strong>E-mail</strong><br />
+            <a href={firma.emailHref}>{firma.email}</a>
+          </p>
+          <p>NIP {firma.nip}</p>
+          <p style="display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn btn-glowny" href={firma.booksy} target="_blank" rel="noopener noreferrer"><span set:html={ikony.kalendarz} />Zarezerwuj online</a>
+            <a class="btn btn-obrys" href={firma.telefonHref}><span set:html={ikony.telefon} />Zadzwoń</a>
+          </p>
+        </div>
+
+        <div><Tresc sekcje={sekcje('kontakt')} /></div>
+      </div>
+
+      <div class="formularz-blok">
+        <div class="formularz-wstep">
+          <p class="etykieta">Napisz do nas</p>
+          <h2 class="tytul-tresci">Formularz kontaktowy</h2>
+          <p>
+            Wolisz napisać niż dzwonić? Zostaw wiadomość, a odpiszemy na podanego maila.
+            Jeśli chodzi o <strong>rezerwację konkretnego terminu</strong>, najszybciej
+            pójdzie przez <a href={firma.booksy} target="_blank" rel="noopener noreferrer">Booksy</a>
+            albo telefonicznie.
+          </p>
+        </div>
+
+        <Formularz
+          temat="Wiadomość ze strony: kontakt"
+          przycisk="Wyślij wiadomość"
+          tytul="Rozluźnij Się, gabinet masażu"
+          podtytul="Odpisujemy zwykle tego samego dnia"
+        >
+          <div class="pola">
+            <label class="pole">
+              <span>Imię <b aria-hidden="true">*</b></span>
+              <input type="text" name="imie" required autocomplete="given-name" placeholder="Jak się do Ciebie zwracać?" />
+            </label>
+            <label class="pole">
+              <span>E-mail <b aria-hidden="true">*</b></span>
+              <input type="email" name="email" required autocomplete="email" placeholder="adres@poczta.pl" />
+            </label>
+            <label class="pole pole-szerokie">
+              <span>Wiadomość <b aria-hidden="true">*</b></span>
+              <textarea name="wiadomosc" rows="5" required placeholder="Napisz, z czym przychodzisz albo o co chcesz zapytać."></textarea>
+            </label>
+          </div>
+
+          <label class="pole-zgoda">
+            <input type="checkbox" name="zgoda" value="tak" required />
+            <span>
+              Zgadzam się na kontakt w sprawie mojego zapytania. Zasady opisaliśmy
+              w <a href="/polityka-prywatnosci">polityce prywatności</a>.
+            </span>
+          </label>
+        </Formularz>
+      </div>
+    </div>
+  </section>
+
+  <section class="mapa-pelna">
+    <h2 class="mapa-tytul">Znajdziesz nas na Piątkowie</h2>
+    <iframe
+      src={firma.mapa}
+      title="Mapa dojazdu do gabinetu masażu Rozluźnij Się w Poznaniu"
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    ></iframe>
+  </section>
+</Layout>

@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from './Naglowek2.astro'
+import Tresc from './Tresc.astro'
+import Cta from './Cta.astro'
+import { sekcje } from '../data/tresc'
+
+interface Props {
+  tytul: string
+  opis: string
+  etykieta?: string
+  naglowek: string
+  lead?: string
+  zrodlo: string
+  waska?: boolean
+  bezCta?: boolean
+  /** Zdjęcie wpuszczane w środek tekstu, przekazywane dalej do <Tresc>. */
+  zdjecie?: ImageMetadata
+  zdjecieAlt?: string
+}
+
+const { tytul, opis, etykieta, naglowek, lead, zrodlo, waska = true, bezCta = false, zdjecie, zdjecieAlt } = Astro.props
+---
+
+<Layout tytul={tytul} opis={opis}>
+  <Naglowek2 etykieta={etykieta} tytul={naglowek} opis={lead} />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class={waska ? 'tresc-waska' : ''}><Tresc sekcje={sekcje(zrodlo)} zdjecie={zdjecie} zdjecieAlt={zdjecieAlt} /></div>
+      <slot />
+    </div>
+  </section>
+
+  {!bezCta && <Cta />}
+</Layout>

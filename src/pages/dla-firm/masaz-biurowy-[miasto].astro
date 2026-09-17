@@ -1,0 +1,314 @@
+---
+/**
+ * Podstrony masażu biurowego dla miast, do których dojeżdżamy na zamówienie.
+ * Gabinet stoi w Poznaniu i to on jest tu stroną główną tematu: każda podstrona
+ * linkuje do wersji poznańskiej, do oferty dla firm i do sąsiednich miast.
+ */
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Naglowek2 from '../../components/Naglowek2.astro'
+import Formularz from '../../components/Formularz.astro'
+import { firma } from '../../config'
+import { ikony } from '../../data/ikony'
+import { zdjeciaBiura } from '../../data/zdjecia'
+import { miasta } from '../../data/miasta'
+
+export function getStaticPaths() {
+  return miasta.map((m) => ({ params: { miasto: m.slug }, props: { miasto: m } }))
+}
+
+const { miasto } = Astro.props
+---
+
+<Layout
+  tytul={`Masaż biurowy ${miasto.nazwa} | masaż dla firm Rozluźnij Się`}
+  opis={`Masaż biurowy ${miasto.wMiescie} na krześle lub stole do masażu. Dojeżdżamy z Poznania na dni zdrowia eventy i cykliczne wizyty w firmach. Wycena po rozmowie.`}
+>
+  <Naglowek2
+    etykieta="Masaż dla firm"
+    tytul={`Masaż biurowy ${miasto.nazwa}`}
+    opis={`Przyjeżdżamy ${miasto.doMiasta} z własnym krzesłem i stołem do masażu. Wy dajecie salkę i listę chętnych, resztę bierzemy na siebie.`}
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="proza tresc-waska">
+        <p>
+          Gabinet stacjonarny prowadzimy w Poznaniu i to tam wykonujemy większość zabiegów,
+          także <a href="/dla-firm/masaz-biurowy-poznan">masaż biurowy w Poznaniu</a>.
+          Do firm {miasto.wMiescie} <strong>dojeżdżamy na zamówienie</strong>: na dni zdrowia,
+          eventy, konferencje i cykliczne wizyty w większych zespołach. Warunki takiego wyjazdu
+          ustalamy indywidualnie, dlatego zaczynamy od krótkiej rozmowy albo formularza na dole
+          tej strony.
+        </p>
+        <p>
+          Z Poznania jedziemy <strong>{miasto.czas}</strong> {miasto.trasa}, dystans to
+          około {miasto.km} km. {miasto.akcent}
+        </p>
+        <p>
+          Masujemy tam, gdzie pracujecie: {miasto.biura}. Nie potrzebujemy osobnego gabinetu
+          ani przygotowań, wystarczy <strong>kawałek wolnej przestrzeni</strong> i gniazdko obok.
+        </p>
+      </div>
+
+      <div class="karty-tryby">
+        <article class="karta-tryb">
+          <span class="karta-tryb-ikona" set:html={ikony.samochod} />
+          <h2>Na siedząco, na krześle</h2>
+          <p>
+            15–20 minut na osobę, <strong>bez rozbierania się i bez olejków</strong>. Pracujemy
+            na karku, barkach, plecach i dłoniach. Pracownik wraca do biurka od razu po sesji,
+            więc w ciągu dnia przewijamy przez stanowisko kilkanaście osób.
+          </p>
+        </article>
+        <article class="karta-tryb">
+          <span class="karta-tryb-ikona" set:html={ikony.kalendarz} />
+          <h2>Na leżąco, na stole</h2>
+          <p>
+            Od 30 minut wzwyż, jeśli macie osobny pokój i chcecie dać ludziom
+            <strong> pełniejszy zabieg</strong>. Ta wersja sprawdza się przy dniach zdrowia
+            i integracjach, gdzie nikt nie patrzy na zegarek.
+          </p>
+        </article>
+      </div>
+
+      <div class="galeria-salonu" style="margin-top:34px">
+        {zdjeciaBiura.map((z) => (
+          <figure class="kadr">
+            <Image
+              src={z.zdjecie}
+              alt={`${z.alt}. Masaż biurowy ${miasto.nazwa} i Poznań`}
+              widths={[420, 800]}
+              width={800}
+              quality={74}
+              sizes="(max-width: 700px) 92vw, 31vw"
+              loading="lazy"
+            />
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Jak to wygląda</p>
+      <h2 class="tytul-sekcji">Dzień masażu {miasto.wMiescie} krok po kroku</h2>
+
+      <ol class="kroki-wizyty" style="max-width:820px">
+        <li>
+          <span class="krok-numer" aria-hidden="true">01</span>
+          <div class="krok-tresc">
+            <h3>Ustalamy zakres</h3>
+            <p>
+              Mówicie, ilu macie chętnych, ile godzin przeznaczacie na masaż i jaki termin
+              wchodzi w grę. Na tej podstawie liczymy, ilu osobom realnie zdążymy pomóc
+              i czy potrzebne jest <strong>drugie stanowisko</strong>.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="krok-numer" aria-hidden="true">02</span>
+          <div class="krok-tresc">
+            <h3>Dostajecie wycenę i grafik</h3>
+            <p>
+              Przy wyjazdach poza Poznań <strong>cenę ustalamy indywidualnie</strong>, bo składa
+              się na nią dojazd {miasto.doMiasta}, liczba stanowisk i długość dnia.
+              Do tego przesyłamy gotową listę godzin do rozpisania między pracowników.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="krok-numer" aria-hidden="true">03</span>
+          <div class="krok-tresc">
+            <h3>Przyjeżdżamy i rozkładamy się</h3>
+            <p>
+              Sprzęt wozimy własnym autem: krzesło do masażu, stół, podkłady i ręczniki.
+              Rozłożenie stanowiska zajmuje <strong>kilka minut</strong>, a po wszystkim
+              zostawiamy salkę taką, jaka była.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="krok-numer" aria-hidden="true">04</span>
+          <div class="krok-tresc">
+            <h3>Pracujemy z ludźmi, nie z listą</h3>
+            <p>
+              Każdą sesję zaczynamy od pytania, co boli i gdzie siedzi napięcie. Kto pracuje
+              przy monitorze, dostaje inną pracę niż ktoś, kto cały dzień stoi. Siłę nacisku
+              <strong> dopasowujemy w trakcie</strong>.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="proza tresc-waska">
+        <p class="etykieta">Dlaczego z Poznania</p>
+        <h2 class="tytul-sekcji tytul-mniejszy">Jedna ekipa, ta sama robota co u siebie</h2>
+        <p>
+          Nie jesteśmy pośrednikiem, który podeśle {miasto.doMiasta} przypadkową osobę
+          z bazy. Przyjeżdżamy my, czyli ci sami masażyści, którzy na co dzień pracują
+          w <a href="/">gabinecie na Piątkowie w Poznaniu</a>. Ten sam sprzęt, te same techniki
+          i ta sama rozmowa przed zabiegiem.
+        </p>
+        <p>
+          Na co dzień robimy <a href="/masaze/klasyczny-poznan">masaż klasyczny</a>,
+          <a href="/masaze/tkanek-glebokich-poznan"> tkanek głębokich</a>,
+          <a href="/masaze/sportowy-poznan"> sportowy</a> i
+          <a href="/masaz-relaksacyjny-poznan"> relaksacyjny</a>, a w Poznaniu dojeżdżamy też
+          <a href="/dojazd"> do domów i biur</a>. Ceny zabiegów gabinetowych znajdziesz
+          w <a href="/cennik-masazu-poznan">cenniku</a>, natomiast wyjazd {miasto.doMiasta}
+          {' '}wyceniamy osobno.
+        </p>
+        <p>
+          Szukasz masażu dla siebie, a nie dla zespołu? Zajrzyj na
+          <a href="/masaze"> listę zabiegów</a>. A jeśli chcesz porównać warianty współpracy
+          z firmami, wszystko zebraliśmy na stronie <a href="/dla-firm">masaż dla firm</a>.
+        </p>
+      </div>
+
+      <div class="formularz-blok">
+        <div class="formularz-wstep">
+          <p class="etykieta">Zapytanie o termin</p>
+          <h2 class="tytul-tresci">Powiedz, jak to ma wyglądać {miasto.wMiescie}</h2>
+          <p>
+            Im więcej wiem z góry, tym szybciej odeślę konkretny plan i wycenę.
+            <strong> Szacunki w zupełności wystarczą.</strong>
+          </p>
+        </div>
+
+        <Formularz
+          temat={`Masaż biurowy ${miasto.nazwa}: zapytanie o termin`}
+          przycisk="Wyślij zapytanie"
+          tytul={`Masaż biurowy ${miasto.nazwa}`}
+          podtytul="Odpowiadamy osobiście, zwykle tego samego dnia"
+        >
+          <div class="pola">
+            <label class="pole">
+              <span>Firma <b aria-hidden="true">*</b></span>
+              <input type="text" name="firma" required autocomplete="organization" placeholder="Nazwa firmy" />
+            </label>
+            <label class="pole">
+              <span>Osoba kontaktowa <b aria-hidden="true">*</b></span>
+              <input type="text" name="osoba" required autocomplete="name" placeholder="Imię i nazwisko" />
+            </label>
+            <label class="pole">
+              <span>E-mail <b aria-hidden="true">*</b></span>
+              <input type="email" name="email" required autocomplete="email" placeholder="adres@firma.pl" />
+            </label>
+            <label class="pole">
+              <span>Telefon</span>
+              <input type="tel" name="telefon" autocomplete="tel" placeholder="opcjonalnie" />
+            </label>
+            <label class="pole">
+              <span>Interesujące terminy <b aria-hidden="true">*</b></span>
+              <input type="text" name="terminy" required placeholder="np. druga połowa października" />
+            </label>
+            <label class="pole">
+              <span>Ile godzin przewidujecie na całość <b aria-hidden="true">*</b></span>
+              <input type="text" name="godziny" required placeholder="np. 6 godzin" />
+            </label>
+            <label class="pole">
+              <span>Liczba osób <b aria-hidden="true">*</b></span>
+              <input type="text" name="osoby" required placeholder="dokładnie albo w przybliżeniu" />
+            </label>
+            <label class="pole">
+              <span>Ile masażu na jednego pracownika</span>
+              <select name="czasNaOsobe">
+                <option value="">Wybierz albo zostaw do ustalenia</option>
+                <option>15 minut</option>
+                <option>20 minut</option>
+                <option>30 minut</option>
+                <option>45 minut</option>
+                <option>60 minut</option>
+                <option>Jeszcze nie wiemy</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset class="wybor">
+            <span>Czy całość ma się odbyć jednego dnia? <b aria-hidden="true">*</b></span>
+            <div class="wybor-siatka">
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Jeden dzień" required />
+                <span>Jeden dzień<small>Wszystko zamykamy za jednym razem</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Kilka dni" />
+                <span>Kilka dni<small>Rozkładamy zespół na dwa albo więcej terminów</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Do ustalenia" />
+                <span>Do ustalenia<small>Doradźcie, co ma większy sens</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="wybor">
+            <span>Preferowany tryb masażu <b aria-hidden="true">*</b></span>
+            <div class="wybor-siatka">
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Na siedząco, krzesło, 15-20 min" required />
+                <span>Na siedząco<small>Krzesło do masażu, 15–20 minut, bez rozbierania</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Na leżąco, stół, od 30 min" />
+                <span>Na leżąco<small>Stół do masażu, od 30 minut wzwyż</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Do ustalenia" />
+                <span>Nie wiem<small>Dobierzmy razem do tego, ile mamy czasu</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="pola">
+            <label class="pole pole-szerokie">
+              <span>Uwagi</span>
+              <textarea name="uwagi" rows="4" placeholder={`Adres ${miasto.wMiescie}, piętro, dostępne pomieszczenie, okazja (np. dzień zdrowia).`}></textarea>
+            </label>
+          </div>
+
+          <label class="pole-zgoda">
+            <input type="checkbox" name="zgoda" value="tak" required />
+            <span>
+              Zgadzam się na kontakt w sprawie tego zapytania. Zasady opisaliśmy
+              w <a href="/polityka-prywatnosci">polityce prywatności</a>.
+            </span>
+          </label>
+        </Formularz>
+      </div>
+
+      <div class="uwaga-cennik" style="margin-top:32px">
+        <p>
+          <strong>Wolisz od razu porozmawiać?</strong> Zadzwoń, ustalimy zakres w kilka minut
+          i od razu powiem, czy mamy wolny termin {miasto.wMiescie}.
+        </p>
+        <a class="btn btn-zielony" href={firma.telefonHref}><span set:html={ikony.telefon} />Zadzwoń: {firma.telefon}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-zielona">
+    <div class="kontener">
+      <p class="etykieta">Inne miasta</p>
+      <h2 class="tytul-sekcji">Dojeżdżamy również tutaj</h2>
+      <p class="proza" style="max-width:62ch">
+        Bazę mamy w Poznaniu, więc najwięcej terminów jest właśnie tam. Jeśli Wasze biura
+        są w kilku miastach, spokojnie ułożymy trasę pod jeden wyjazd.
+      </p>
+      <ul class="lista-dzielnic">
+        <li><a href="/dla-firm/masaz-biurowy-poznan">Poznań</a></li>
+        {miasta
+          .filter((m) => m.slug !== miasto.slug)
+          .map((m) => (
+            <li><a href={`/dla-firm/masaz-biurowy-${m.slug}`}>{m.nazwa}</a></li>
+          ))}
+      </ul>
+    </div>
+  </section>
+</Layout>

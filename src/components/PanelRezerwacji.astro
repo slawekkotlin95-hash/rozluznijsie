@@ -1,0 +1,27 @@
+---
+/**
+ * Trzy kroki rezerwacji. Na desktopie siedzą w hero obok tytułu, na telefonie
+ * hero jest przycięte do samego nagłówka, więc ten sam panel wraca osobną
+ * sekcją nad listą masaży. Jedno źródło treści, dwa miejsca użycia.
+ */
+import { firma } from '../config'
+import { ikony } from '../data/ikony'
+---
+
+<h2>Jak zarezerwować wizytę</h2>
+<ol class="hero-kroki">
+  <li>
+    <span>01</span>
+    <p>Wybierz zabieg z <a href="/masaze">listy masaży</a> albo napisz, co Ci dolega, a dobierzemy go razem.</p>
+  </li>
+  <li>
+    <span>02</span>
+    <p>Zarezerwuj termin w Booksy o dowolnej porze albo zadzwoń pod <a href={firma.telefonHref}>{firma.telefon}</a>.</p>
+  </li>
+  <li>
+    <span>03</span>
+    <p>Przyjdź kilka minut wcześniej. Zaczynamy od krótkiej rozmowy o tym, jak pracować z Twoim ciałem.</p>
+  </li>
+</ol>
+<a class="btn btn-glowny" href={firma.booksy} target="_blank" rel="noopener noreferrer"><span set:html={ikony.kalendarz} />Rezerwacja w Booksy</a>
+<p class="hero-panel-drobne">Pierwszy raz u nas? Zajrzyj na <a href="/pierwsza-wizyta">stronę pierwszej wizyty</a>.</p>

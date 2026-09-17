@@ -1,0 +1,1166 @@
+---
+/**
+ * Rozbudowany poradnik o masażu Kobido Up. Wpis pisany ręcznie, dlatego stoi
+ * jako osobna podstrona, a nie leci przez `[wpis].astro` z zrodlo.json.
+ * Cena idzie z `config.ts`, żeby nie rozjechała się z cennikiem.
+ */
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Cta from '../../components/Cta.astro'
+import { firma, masaze, godziny } from '../../config'
+import { ikony } from '../../data/ikony'
+import { zdjecia, zdjeciaMasazy, miniaturyWpisow } from '../../data/zdjecia'
+import MetaWpisu from '../../components/MetaWpisu.astro'
+import { wpisy, wpisyOdNajnowszych } from '../../data/strony'
+
+const kobido = masaze.find((m) => m.slug === 'kobido-poznan')!
+const tenWpis = wpisy.find((w) => w.slug === 'masaz-kobido-up-poznan')!
+const adres = `${firma.ulica}, ${firma.kod} ${firma.miasto}`
+
+/** Etapy zabiegu. Kolejność orientacyjna, w gabinecie zależy od potrzeb skóry i napięć. */
+const etapy = [
+  {
+    tytul: 'Rozmowa i krótki wywiad',
+    opis: 'Zaczynamy od pytań: co Cię do nas przywiodło, czy zaciskasz zęby, czy budzisz się z opuchniętą twarzą, jakich kosmetyków używasz, czy w ostatnich tygodniach miałaś zabiegi medycyny estetycznej. To moment, w którym ustalamy zakres pracy i intensywność.',
+  },
+  {
+    tytul: 'Przygotowanie skóry',
+    opis: 'Demakijaż i oczyszczenie twarzy, szyi oraz dekoltu. Bez tego dłonie nie mają jak pracować, a skóra źle znosi tarcie. Dobieramy też preparat poślizgowy do rodzaju cery.',
+  },
+  {
+    tytul: 'Szyja, kark i dekolt',
+    opis: 'Praca zaczyna się <strong>poniżej twarzy</strong>. Napięty kark i barki potrafią ciągnąć rysy w dół, a zastój w tej okolicy utrudnia odpływ chłonki z twarzy. Dopiero rozluźniona szyja pozwala sensownie pracować wyżej.',
+  },
+  {
+    tytul: 'Rozluźnienie najbardziej napiętych miejsc',
+    opis: 'Żuchwa, skronie, czoło, okolica między brwiami. Zwykle to tu zbiera się największe napięcie i tu klientki najczęściej reagują zdziwieniem, że coś w twarzy w ogóle może boleć.',
+  },
+  {
+    tytul: 'Techniki drenujące',
+    opis: 'Delikatne, rytmiczne ruchy prowadzone zgodnie z przebiegiem naczyń chłonnych, w stronę węzłów. Wspierają naturalny odpływ płynów i u części osób <strong>widocznie zmniejszają poranną opuchliznę</strong>.',
+  },
+  {
+    tytul: 'Intensywna faza liftingująca',
+    opis: 'Szybkie, sprężyste ruchy prowadzone ku górze i na zewnątrz twarzy. To ta część, po której Kobido zyskało przydomek japońskiego liftingu. Tempo bywa zaskakująco dynamiczne.',
+  },
+  {
+    tytul: 'Praca na mięśniach mimicznych',
+    opis: 'Precyzyjne ugniatanie i rozcieranie mięśni odpowiedzialnych za mimikę. Chodzi o przywrócenie im elastyczności, a nie o wygaszenie ruchu, jak przy zabiegach medycyny estetycznej.',
+  },
+  {
+    tytul: 'Żuchwa i owal twarzy',
+    opis: 'Osobny fragment poświęcony linii żuchwy, mięśniom żwaczy i okolicy podbródka. U osób zaciskających zęby żwacze bywają twarde jak kamień i wymagają spokojnej, stopniowej pracy.',
+  },
+  {
+    tytul: 'Elementy akupresury',
+    opis: 'Punktowy ucisk w wybranych miejscach twarzy i głowy, utrzymywany przez kilka oddechów. Nie u każdego i nie w każdym zabiegu, bo część osób woli ciągły ruch niż zatrzymanie.',
+  },
+  {
+    tytul: 'Wyciszenie i zakończenie',
+    opis: 'Uspokojenie tempa, delikatne głaskania, czasem chwila z dłońmi ułożonymi na twarzy. Na koniec pielęgnacja dobrana do cery i kilka zdań o tym, czego unikać przez najbliższe godziny.',
+  },
+]
+
+const porownanie = [
+  {
+    element: 'Intensywność',
+    zwykly: 'Zwykle stała, raczej delikatna, na poziomie skóry i tkanki podskórnej.',
+    kobido: 'Zmienna w obrębie jednego zabiegu, od bardzo lekkiej po wyraźnie mocną pracę na mięśniach.',
+  },
+  {
+    element: 'Tempo',
+    zwykly: 'Wolne i równomierne, nastawione na wyciszenie.',
+    kobido: 'Naprzemienne. Fragmenty bardzo szybkie i rytmiczne przeplatają się z wolnymi.',
+  },
+  {
+    element: 'Praca z mięśniami',
+    zwykly: 'Marginalna, głównie rozprowadzenie kosmetyku i lekkie rozluźnienie.',
+    kobido: 'Kluczowa. Mięśnie mimiczne i żwacze są osobnym celem zabiegu.',
+  },
+  {
+    element: 'Drenaż',
+    zwykly: 'Czasem obecny, zwykle w formie kilku ruchów.',
+    kobido: 'Stały element protokołu, prowadzony w kierunku węzłów chłonnych.',
+  },
+  {
+    element: 'Techniki liftingujące',
+    zwykly: 'Zwykle brak wyodrębnionej fazy.',
+    kobido: 'Osobna, dynamiczna faza prowadzona ku górze i na zewnątrz twarzy.',
+  },
+  {
+    element: 'Akupresura',
+    zwykly: 'Rzadko stosowana.',
+    kobido: 'Często obecna jako uzupełnienie, zależnie od szkoły i potrzeb osoby.',
+  },
+  {
+    element: 'Zakres pracy',
+    zwykly: 'Najczęściej sama twarz.',
+    kobido: 'Twarz, szyja, dekolt i kark, u nas także skóra głowy.',
+  },
+  {
+    element: 'Cel zabiegu',
+    zwykly: 'Odprężenie i wsparcie pielęgnacji kosmetycznej.',
+    kobido: 'Praca z napięciem mięśni i wyglądem skóry naraz, z wyraźnym efektem wizualnym po zabiegu.',
+  },
+]
+
+const pytania = [
+  {
+    pytanie: 'Czy masaż Kobido jest dla każdego?',
+    html: `Dla większości osób tak, ale <strong>nie jest to zabieg bez żadnych ograniczeń</strong>. Kobido dobrze sprawdza się u osób,
+      które chcą zadbać o wygląd twarzy bez zabiegów inwazyjnych, u osób z napięciem w żuchwie, skroniach i karku,
+      a także u tych, które po prostu szukają wyciszającego masażu twarzy. Ostrożność zachowujemy przy aktywnych stanach
+      zapalnych skóry, świeżych urazach, infekcjach z gorączką, chorobach skóry w fazie zaostrzenia oraz krótko po zabiegach
+      medycyny estetycznej i chirurgicznych. Nie stawiamy diagnoz, dlatego przy chorobach przewlekłych, problemach
+      dermatologicznych czy leczeniu onkologicznym prosimy o konsultację z lekarzem prowadzącym przed wizytą.
+      Jeśli nie masz pewności, zadzwoń przed rezerwacją, omówimy to spokojnie.`,
+  },
+  {
+    pytanie: 'Ile trwa masaż Kobido w Waszym gabinecie?',
+    html: `Zabieg trwa <strong>60 minut</strong> i tyle rezerwujesz w kalendarzu. W tym czasie mieści się krótka rozmowa,
+      demakijaż, praca na szyi, karku i dekolcie, wszystkie fazy masażu twarzy oraz wyciszenie na koniec.
+      Możesz też wybrać wariant z kinesiotapingiem, który trwa tyle samo, a różni się tym, że po masażu
+      zakładamy plastry na wybrane okolice twarzy. W praktyce warto zarezerwować sobie kilka minut zapasu przed
+      wizytą i nie planować niczego pilnego bezpośrednio po niej, bo po Kobido większość osób jest wyraźnie
+      spowolniona i po prostu szkoda tego stanu na bieganie po mieście. Pełne informacje organizacyjne zebraliśmy
+      na stronie <a href="/pierwsza-wizyta">pierwszej wizyty</a>.`,
+  },
+  {
+    pytanie: 'Czy Kobido boli?',
+    html: `Nie powinno. <strong>Kobido nie jest masażem, w którym ból świadczy o skuteczności</strong>. Większość technik jest
+      delikatna albo umiarkowana, natomiast praca na żwaczach, przy linii żuchwy i na napiętym karku bywa odczuwalna,
+      zwłaszcza za pierwszym razem. To uczucie zwykle opisuje się jako „przyjemnie mocne”, a nie ostre.
+      Jeśli nacisk jest za duży, wystarczy powiedzieć słowo, zmieniamy go od razu. Prosimy też o sygnał w drugą stronę,
+      kiedy chcesz mocniej. Po zabiegu skóra może być zaczerwieniona, a napięte okolice lekko tkliwe przez kilka godzin,
+      podobnie jak po masażu karku. To normalna reakcja, a nie powód do niepokoju.`,
+  },
+  {
+    pytanie: 'Czy po pierwszym masażu widać efekty?',
+    html: `U wielu osób tak, choć są to <strong>efekty subtelne i przejściowe</strong>. Najczęściej zauważalne są zaraz po zabiegu:
+      twarz wygląda na wypoczętą, skóra jest lepiej ukrwiona i bardziej rozświetlona, rysy sprawiają wrażenie
+      wyraźniejszych, a poranna opuchlizna bywa mniejsza. Nie zmienia to tego, że pojedynczy masaż nie przebuduje
+      struktury skóry ani nie usunie zmarszczek. Trwalsza zmiana w odczuwanym napięciu mięśni twarzy pojawia się
+      raczej po kilku wizytach, kiedy żwacze i mięśnie karku przestają wracać do starego wzorca po dwóch dniach.
+      Skala efektu zależy od wieku, nawodnienia, jakości snu i tego, jak bardzo napięta była twarz przed zabiegiem.`,
+  },
+  {
+    pytanie: 'Jak często można wykonywać masaż Kobido?',
+    html: `Nie ma jednej częstotliwości dobrej dla wszystkich. W praktyce spotykamy dwa podejścia.
+      Pierwsze to <strong>seria zabiegów</strong>, czyli kilka wizyt w krótszych odstępach, zwykle co siedem do czternastu dni,
+      po to żeby popracować z konkretnym napięciem albo przygotować się do jakiegoś wydarzenia.
+      Drugie to <strong>zabiegi podtrzymujące</strong>, wykonywane co kilka tygodni jako stały element pielęgnacji.
+      Część osób przychodzi po prostu wtedy, kiedy czuje, że twarz jest ciężka i zmęczona.
+      Decyzję podejmujemy po pierwszej wizycie, na podstawie tego, jak Twoja skóra i mięśnie zareagowały.
+      Pakiet trzech masaży w <a href="/cennik-masazu-poznan">cenniku</a> jest pomyślany właśnie pod pracę w serii.`,
+  },
+  {
+    pytanie: 'Czy Kobido pomaga na opuchniętą twarz?',
+    html: `Techniki drenujące stosowane w Kobido <strong>mogą zmniejszyć widoczność przejściowej opuchlizny</strong>,
+      na przykład tej porannej, po nieprzespanej nocy, słonym posiłku albo kieliszku wina.
+      Efekt jest zwykle najbardziej widoczny bezpośrednio po zabiegu i utrzymuje się przez pewien czas,
+      po czym stopniowo zanika. Masaż nie leczy przyczyn obrzęków. Jeżeli twarz puchnie regularnie,
+      obrzęk jest jednostronny, bolesny, towarzyszy mu zaczerwienienie, gorączka albo pojawił się nagle,
+      to sytuacja dla lekarza, a nie dla gabinetu masażu. Trwałe obrzęki mogą mieć podłoże,
+      którego żadna praca manualna nie rozwiąże i którego nie wolno bagatelizować.`,
+  },
+  {
+    pytanie: 'Czy Kobido pomaga rozluźnić żuchwę?',
+    html: `Praca na mięśniach żwaczy i okolicy stawu skroniowo żuchwowego to jeden z najczęstszych powodów,
+      dla których klientki wracają na Kobido. <strong>Masaż może zmniejszyć odczuwane napięcie</strong> w tej okolicy
+      i poprawić komfort, zwłaszcza u osób, które zaciskają zęby w stresie albo spędzają dzień przy komputerze
+      z wysuniętą do przodu głową. To jednak nie jest leczenie bruksizmu ani chorób stawu skroniowo żuchwowego.
+      Jeśli budzisz się z bólem szczęki, słyszysz trzaski przy otwieraniu ust, ścierasz zęby albo masz bóle głowy
+      o niejasnej przyczynie, potrzebna jest diagnostyka u stomatologa lub fizjoterapeuty stomatognatycznego.
+      Masaż może być wtedy uzupełnieniem, nigdy zamiennikiem leczenia.`,
+  },
+  {
+    pytanie: 'Czy można zrobić Kobido przed ważnym wydarzeniem?',
+    html: `Tak i jest to jeden z popularniejszych powodów rezerwacji. Warto jednak pamiętać o dwóch rzeczach.
+      Po pierwsze, skóra po intensywnej pracy manualnej bywa <strong>zaczerwieniona przez kilka godzin</strong>,
+      dlatego zabieg bezpośrednio przed wyjściem nie zawsze jest najlepszym pomysłem.
+      Po drugie, jeśli to Twój pierwszy raz, nie wiesz jeszcze, jak Twoja cera zareaguje.
+      Najbezpieczniej umówić się <strong>na jeden do trzech dni przed wydarzeniem</strong>, a idealnie zrobić wcześniej
+      wizytę próbną. Osoby, które znają już swoją reakcję, często przychodzą dzień przed ślubem czy sesją zdjęciową
+      i są zadowolone z wyglądu skóry następnego dnia.`,
+  },
+  {
+    pytanie: 'Czy można wykonać Kobido po botoksie?',
+    html: `Nie bezpośrednio po. Po podaniu toksyny botulinowej obowiązuje okres, w którym <strong>nie masuje się
+      okolicy zabiegowej</strong>, a jego długość ustala lekarz wykonujący zabieg. Zwykle mówi się o kilku tygodniach,
+      ale zalecenia bywają różne i to lekarz, a nie masażysta, jest tutaj źródłem wiążącej informacji.
+      Dlatego prosimy, żeby przy rezerwacji powiedzieć wprost, co i kiedy było wykonywane.
+      Jeżeli termin jest zbyt świeży, przesuniemy wizytę, a nie będziemy kombinować z omijaniem okolic.
+      To nie nadgorliwość, tylko podstawowe bezpieczeństwo: praca manualna w świeżo zabiegowanej okolicy
+      może wpłynąć na efekt, za który zapłaciłaś w gabinecie medycyny estetycznej.`,
+  },
+  {
+    pytanie: 'Czy można wykonać Kobido po kwasie hialuronowym?',
+    html: `Obowiązuje ta sama zasada co przy toksynie botulinowej: <strong>decyduje lekarz, który podawał wypełniacz</strong>.
+      Po wypełnieniach zwykle zaleca się odczekanie kilku tygodni, zanim preparat ustabilizuje się w tkance.
+      Poinformuj nas o wszystkich zabiegach z ostatnich miesięcy, także o mezoterapii, peelingach chemicznych,
+      laserach czy nici liftingujących. Na tej podstawie albo przesuniemy termin, albo ograniczymy zakres pracy
+      do okolic bezpiecznych, na przykład karku, szyi i skóry głowy. Nigdy nie zakładamy z góry,
+      że „na pewno już można”, bo tempo gojenia i rodzaj preparatu są bardzo indywidualne.`,
+  },
+  {
+    pytanie: 'Czy Kobido jest odpowiednie dla mężczyzn?',
+    html: `Tak, choć wciąż rzadziej po nie sięgają. <strong>Anatomia napięcia nie zna płci</strong>: zaciskanie zębów przy stresie,
+      sztywny kark po ośmiu godzinach przy monitorze i ciężka, zmęczona twarz wieczorem wyglądają tak samo
+      u kobiet i u mężczyzn. Zarost nie jest przeszkodą, zmienia jedynie sposób prowadzenia niektórych ruchów
+      i dobór preparatu poślizgowego. Mężczyźni najczęściej przychodzą do nas z powodu napięcia w żuchwie i skroniach,
+      rzadziej z powodów estetycznych, i zwykle łączą Kobido z <a href="/masaze/glowy-i-barki-poznan">masażem głowy
+      i obręczy barkowej</a>, bo te obszary i tak pracują razem.`,
+  },
+  {
+    pytanie: 'Czy Kobido można łączyć z innymi zabiegami?',
+    html: `Z masażami ciała jak najbardziej. Dobrze łączy się z <a href="/masaze/glowy-i-barki-poznan">masażem głowy
+      i obręczy barkowej</a> oraz z <a href="/masaz-relaksacyjny-poznan">masażem relaksacyjnym</a>, bo napięcie twarzy
+      rzadko kończy się na twarzy. U nas Kobido można też wykonać <strong>w wariancie z kinesiotapingiem</strong>,
+      czyli z plastrami zakładanymi po masażu. Przy łączeniu z zabiegami kosmetologicznymi i medycyny estetycznej
+      obowiązuje ostrożność i zachowanie odstępów, o których pisaliśmy wyżej. Zawsze warto powiedzieć,
+      co jeszcze robisz ze swoją skórą, żeby dwa dobre zabiegi nie zaczęły sobie przeszkadzać.`,
+  },
+  {
+    pytanie: 'Czy masaż Kobido zastępuje zabiegi medycyny estetycznej?',
+    html: `Nie i nie warto tego tak stawiać. <strong>To dwa różne narzędzia o różnym zasięgu.</strong>
+      Medycyna estetyczna działa na strukturę tkanki i daje efekt, którego praca manualna nie odtworzy.
+      Kobido pracuje z napięciem mięśni, ukrwieniem i odpływem płynów, a jego efekt jest kosmetyczny,
+      subtelny i zależny od regularności. Dla części osób to wystarczy i świadomie nie chcą sięgać po igły.
+      Inni traktują masaż jako uzupełnienie tego, co robią u lekarza. Nie obiecujemy efektów
+      porównywalnych z zabiegami medycznymi i uważamy, że gabinet, który to obiecuje, mija się z prawdą.`,
+  },
+  {
+    pytanie: 'Jak długo utrzymują się efekty masażu Kobido?',
+    html: `Najbardziej widoczna część efektu, czyli rozświetlenie, mniejsza opuchlizna i wypoczęty wygląd twarzy,
+      utrzymuje się <strong>zwykle od kilkunastu godzin do kilku dni</strong>. Rozluźnienie mięśni żuchwy i karku bywa
+      trwalsze, szczególnie jeśli pracujesz nad przyczyną napięcia, na przykład nad ustawieniem stanowiska pracy
+      albo poziomem stresu. Przy serii zabiegów efekty zwykle utrzymują się dłużej, bo mięśnie nie zdążają
+      wrócić do poprzedniego stanu między wizytami. Nie ma jednak sensu obiecywać konkretnej liczby dni:
+      zależy to od wieku, kondycji skóry, snu, nawodnienia i tego, co dzieje się w Twoim życiu między jedną wizytą a drugą.`,
+  },
+]
+
+const czystyTekst = (h: string) => h.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+
+const tytulStrony = 'Masaż Kobido Up Poznań: na czym polega, jak wygląda i jakie daje efekty'
+const opisStrony =
+  'Masaż Kobido Up Poznań: na czym polega japoński lifting twarzy, jak wygląda zabieg krok po kroku, jakie daje efekty, ile kosztuje i jak się przygotować.'
+const adresStrony = new URL('/blog/masaz-kobido-up-poznan', 'https://rozluznijsie.pl').href
+
+const artykulSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: tytulStrony,
+  description: opisStrony,
+  inLanguage: 'pl-PL',
+  datePublished: tenWpis.data,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': adresStrony },
+  author: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+  publisher: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+  about: { '@type': 'Thing', name: 'Masaż Kobido Up' },
+}
+
+const okruchySchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Strona główna', item: 'https://rozluznijsie.pl/' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://rozluznijsie.pl/blog' },
+    { '@type': 'ListItem', position: 3, name: 'Masaż Kobido Up Poznań', item: adresStrony },
+  ],
+}
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: pytania.map((p) => ({
+    '@type': 'Question',
+    name: p.pytanie,
+    acceptedAnswer: { '@type': 'Answer', text: czystyTekst(p.html) },
+  })),
+}
+
+const inne = wpisyOdNajnowszych.filter((w) => ['kobido-up', 'stres-a-bol', 'bol-glowy-i-szyi'].includes(w.slug))
+const sobota = godziny.find((g) => g.dzien === 'Sobota')!
+---
+
+<Layout tytul="Masaż Kobido Up Poznań | gabinet Rozluźnij Się" opis={opisStrony}>
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <header class="glowka-wpisu">
+        <a class="pasek-powrot" href="/blog">← Wszystkie wpisy</a>
+        <h1>{tytulStrony}</h1>
+        <p class="glowka-lead">Japoński masaż twarzy, który pracuje na mięśniach, a nie tylko na skórze. Wszystko, co warto wiedzieć przed pierwszą wizytą.</p>
+        <MetaWpisu wpis={tenWpis} />
+      </header>
+
+      <div class="blok-tresci">
+        <div class="proza">
+          <p>
+            <strong>Masaż Kobido Up w Poznaniu to intensywna, manualna praca z twarzą, szyją, karkiem i dekoltem,
+            wykonywana wyłącznie dłońmi, bez igieł, aparatury i preparatów wypełniających.</strong>
+            Łączy techniki rozluźniające mięśnie mimiczne i żwacze, ruchy drenujące wspierające odpływ chłonki
+            oraz szybkie, sprężyste sekwencje prowadzone ku górze twarzy, od których wzięła się nazwa
+            japońskiego liftingu. Efekt jest kosmetyczny i relaksacyjny: skóra bywa lepiej ukrwiona i rozświetlona,
+            a twarz wygląda na bardziej wypoczętą.
+          </p>
+          <p>
+            Ten zabieg interesuje zwykle dwie grupy osób. Pierwsza chce zadbać o wygląd twarzy bez zabiegów inwazyjnych.
+            Druga przychodzi z konkretnym problemem: <strong>zaciskaniem zębów, twardą żuchwą, ciężką i opuchniętą
+            twarzą po nieprzespanej nocy albo sztywnym karkiem po dniu przy monitorze</strong>. Obie grupy trafiają
+            w to samo miejsce, bo napięcie i wygląd twarzy są ze sobą powiązane mocniej, niż się zwykle zakłada.
+          </p>
+          <p>
+            W naszym gabinecie na poznańskim Piątkowie Kobido trwa godzinę i za każdym razem zaczyna się od rozmowy,
+            a nie od razu od pracy na twarzy. Poniżej opisujemy, czym Kobido Up różni się od zwykłego masażu twarzy,
+            jak wygląda wizyta minuta po minucie, jakich efektów można się realistycznie spodziewać,
+            kiedy zabiegu lepiej nie wykonywać i ile kosztuje. Bez obietnic, których żaden masaż nie spełni.
+          </p>
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjeciaMasazy['kobido-poznan']}
+          alt="Masaż Kobido Up w Poznaniu, dłonie technika masażysty na skroniach klientki leżącej na leżance"
+          title="Masaż Kobido Up w gabinecie Rozluźnij Się w Poznaniu"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption>Praca w okolicy skroni i linii włosów, jeden z pierwszych etapów rozluźnienia twarzy.</figcaption>
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Czym jest masaż Kobido Up?</h2>
+        <div class="proza">
+          <p>
+            <strong>Kobido to japońska technika masażu twarzy oparta na precyzyjnej pracy manualnej,
+            w której obok skóry pracuje się z mięśniami, powięzią i układem chłonnym.</strong>
+            Nazwa oznacza w wolnym tłumaczeniu „starą drogę piękna”, a sama tradycja wywodzi się z japońskiej
+            kultury dbania o twarz, w której masaż był codziennym rytuałem, a nie zabiegiem od święta.
+            Współczesne Kobido wykonywane w europejskich gabinetach jest adaptacją tej tradycji,
+            usystematyzowaną w konkretne sekwencje ruchów.
+          </p>
+          <p>
+            <strong>Kobido Up to nazwa rozwinięcia tej metody</strong>, w którym mocniej akcentuje się fazę liftingującą
+            oraz pracę z napięciem mięśni. W praktyce oznacza to więcej sekwencji prowadzonych ku górze twarzy,
+            dokładniejszą pracę na żwaczach i mięśniach mimicznych oraz częstsze wyjście poza samą twarz,
+            czyli na kark, szyję, dekolt i skórę głowy. Warto wiedzieć, że <strong>nazewnictwo nie jest
+            ujednolicone</strong>: różne szkoły uczą różnych protokołów i pod tą samą nazwą dwa gabinety mogą
+            wykonywać nieco inny zabieg. Dlatego zamiast porównywać nazwy, warto zapytać wprost, co wchodzi w skład wizyty.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Czym różni się od klasycznego masażu twarzy</h3>
+        <div class="proza">
+          <p>
+            Klasyczny masaż twarzy, ten wykonywany zwykle jako element zabiegu kosmetycznego,
+            pracuje przede wszystkim na skórze: rozprowadza preparat, poprawia ukrwienie, odpręża.
+            Jest wolny, równomierny i przyjemny. Kobido idzie warstwę głębiej.
+            <strong>Zmienia tempo i intensywność w obrębie jednego zabiegu</strong>, przechodzi od bardzo delikatnych
+            ruchów do wyraźnie mocnych, a mięśnie traktuje jako osobny cel pracy, nie jako podłoże dla skóry.
+          </p>
+          <p>
+            Druga różnica to zakres. Ograniczenie pracy do samej twarzy ma ograniczony sens,
+            bo <strong>napięty kark i barki potrafią realnie ciągnąć rysy w dół</strong>, a zastój w okolicy szyi
+            utrudnia odpływ chłonki z twarzy. Dlatego zabieg obejmuje u nas także szyję, dekolt, kark i skórę głowy.
+            Jeśli głównym problemem jest sztywna górna część pleców, sensowniejszym wyborem bywa
+            <a href="/masaze/glowy-i-barki-poznan">masaż głowy i obręczy barkowej</a>, a Kobido dokłada się do niego później.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Dlaczego mówi się „lifting bez skalpela”</h3>
+        <div class="proza">
+          <p>
+            To określenie marketingowe i tak należy je czytać. <strong>Kobido nie jest odpowiednikiem chirurgicznego
+            liftingu ani zabiegu medycyny estetycznej.</strong> Nie przemieszcza tkanek na stałe, nie wypełnia ubytków
+            objętości i nie zatrzymuje procesów starzenia. Efekt liftingujący, o którym mowa,
+            jest efektem wizualnym: wynika z lepszego ukrwienia, zmniejszenia przejściowego obrzęku
+            i rozluźnienia mięśni, które w napięciu zmieniają wyraz twarzy.
+          </p>
+          <p>
+            To rozróżnienie jest ważne, bo decyduje o oczekiwaniach. Osoba, która przychodzi po zmianę
+            porównywalną z zabiegiem u lekarza, wyjdzie rozczarowana. Osoba, która przychodzi po
+            <strong> wypoczętą, rozluźnioną twarz i realną ulgę w napiętej żuchwie</strong>, zwykle dostaje dokładnie to.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak wygląda masaż Kobido Up krok po kroku?</h2>
+        <div class="proza">
+          <p>
+            <strong>Godzinny zabieg dzieli się na kilka faz, które przechodzą płynnie jedna w drugą:
+            od rozmowy i przygotowania skóry, przez pracę na szyi i karku, po intensywną część liftingującą
+            i wyciszenie.</strong> Poniższa kolejność to nasz sposób prowadzenia wizyty.
+            Dokładny przebieg zależy od gabinetu, szkoły, w której terapeuta się szkolił, oraz od tego,
+            z czym przychodzisz, dlatego nie traktuj tego jak obowiązkowego protokołu obowiązującego wszędzie.
+          </p>
+        </div>
+
+        <ol class="etapy">
+          {etapy.map((e, i) => (
+            <li>
+              <span class="etap-nr" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 class="etap-tytul">{e.tytul}</h3>
+                <p class="etap-opis" set:html={e.opis} />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecia.gabinet3}
+          alt="Kącik konsultacyjny w gabinecie masażu na Piątkowie, dwa zielone fotele i biały stolik ze świecą"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+        <figcaption>Rozmowa przed zabiegiem odbywa się tutaj, zanim położysz się na leżance.</figcaption>
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jakich technik używa się podczas masażu Kobido?</h2>
+        <div class="proza">
+          <p>
+            <strong>Kobido to nie jest głaskanie twarzy.</strong> W obrębie jednego zabiegu przeplata się kilka
+            rodzajów ruchu, a każdy z nich robi coś innego. Właśnie ta zmienność odróżnia go
+            od typowego masażu kosmetycznego.
+          </p>
+          <p class="punkt"><strong>Głaskanie</strong> otwiera i zamyka pracę na każdej okolicy. Rozprowadza preparat,
+            przygotowuje skórę na mocniejszy nacisk i wycisza układ nerwowy między intensywniejszymi fragmentami.</p>
+          <p class="punkt"><strong>Rozcieranie</strong> to praca opuszkami po okręgach, wykonywana głębiej niż głaskanie.
+            Poprawia ukrwienie i przygotowuje mięśnie do ugniatania.</p>
+          <p class="punkt"><strong>Ugniatanie</strong> obejmuje mięśnie, przede wszystkim żwacze, mięśnie policzków
+            i okolicę czoła. To najbardziej odczuwalna część zabiegu i zwykle tu klientki mówią,
+            że nie wiedziały, iż twarz może być tak napięta.</p>
+          <p class="punkt"><strong>Ucisk i akupresura</strong> polegają na zatrzymaniu się w wybranym punkcie
+            na kilka oddechów. Stosowane punktowo, zwykle w okolicy skroni, łuków brwiowych i przyczepów żwaczy.</p>
+          <p class="punkt"><strong>Oklepywanie i ruchy rytmiczne</strong> to szybkie, lekkie sekwencje wykonywane
+            opuszkami. Pobudzają skórę i dają charakterystyczne uczucie „obudzonej” twarzy.</p>
+          <p class="punkt"><strong>Techniki drenujące</strong> prowadzi się powoli i bardzo delikatnie,
+            zgodnie z przebiegiem naczyń chłonnych, w kierunku węzłów przy uchu i wzdłuż szyi.
+            Zbyt mocny nacisk działa tu wbrew celowi.</p>
+          <p class="punkt"><strong>Sekwencje liftingujące</strong> są szybkie i sprężyste, prowadzone ku górze
+            i na zewnątrz twarzy. To najbardziej dynamiczny fragment zabiegu.</p>
+          <p>
+            Tempo zmienia się celowo. Wolne fragmenty rozluźniają i wyciszają, szybkie pobudzają krążenie
+            i dają wrażenie napiętej, sprężystej skóry. <strong>Dobry zabieg to nie jest jedna technika
+            powtarzana przez godzinę</strong>, tylko układ dopasowany do tego, co dzieje się pod dłońmi.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jakie efekty daje masaż Kobido Up?</h2>
+        <div class="proza">
+          <p>
+            <strong>Efekty Kobido dzielą się na te widoczne od razu, głównie związane z ukrwieniem, drenażem
+            i rozluźnieniem mięśni, oraz te budowane powoli przy regularnych wizytach.</strong>
+            Żadne z nich nie są gwarantowane i u każdej osoby wyglądają nieco inaczej, bo zależą od wieku,
+            kondycji skóry, snu, nawodnienia i poziomu napięcia przed zabiegiem.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Efekty po pojedynczym zabiegu</h3>
+        <div class="proza">
+          <p class="punkt">Twarz wygląda na <strong>bardziej wypoczętą</strong>, co najczęściej jest pierwszą rzeczą,
+            którą klientki zauważają w lustrze po wstaniu z leżanki.</p>
+          <p class="punkt">Napięte okolice, przede wszystkim żuchwa, skronie i czoło, są wyraźnie rozluźnione.</p>
+          <p class="punkt">Znika uczucie ciężkości twarzy, opisywane czasem jako „maska”, którą nosi się cały dzień.</p>
+          <p class="punkt">Skóra bywa <strong>lepiej ukrwiona i rozświetlona</strong>, a koloryt wyrównany.</p>
+          <p class="punkt">U części osób <strong>zmniejsza się przejściowa opuchlizna</strong>, zwłaszcza w okolicy powiek i policzków.</p>
+          <p class="punkt">Rysy twarzy sprawiają wrażenie wyraźniejszych, a owal bardziej zebranego.</p>
+          <p class="punkt">Pojawia się wyraźne odprężenie, u wielu osób porównywalne z tym po
+            <a href="/masaz-relaksacyjny-poznan"> masażu relaksacyjnym</a> całego ciała.</p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Efekty przy regularnych zabiegach</h3>
+        <div class="proza">
+          <p>
+            Przy pracy w serii zmienia się przede wszystkim to, <strong>jak długo utrzymuje się efekt</strong>.
+            Mięśnie, które przez lata pracowały w jednym wzorcu, nie zostają rozluźnione na stałe po jednej wizycie.
+            Przy kilku zabiegach w krótszych odstępach nie zdążają wrócić do poprzedniego stanu,
+            a różnica staje się bardziej zauważalna.
+          </p>
+          <p class="punkt">Dłuższe utrzymywanie się efektu wizualnego między wizytami.</p>
+          <p class="punkt"><strong>Większa świadomość własnego napięcia</strong>: wiele osób dopiero po kilku
+            zabiegach orientuje się, że przez cały dzień zaciska zęby albo marszczy czoło przy monitorze.</p>
+          <p class="punkt">Możliwa poprawa wyglądu owalu twarzy, wynikająca z rozluźnienia mięśni i lepszego drenażu.</p>
+          <p class="punkt">Regularna pielęgnacja manualna skóry, która dla części osób zastępuje sięganie po metody inwazyjne.</p>
+          <p class="punkt">Stały element radzenia sobie ze stresem, co przy napięciowych dolegliwościach
+            bywa ważniejsze niż sam efekt kosmetyczny. Pisaliśmy o tym we wpisie o
+            <a href="/blog/stres-a-bol"> wpływie stresu na ból</a>.</p>
+          <p>
+            Czego Kobido nie zrobi: <strong>nie usunie zmarszczek, nie zatrzyma procesu starzenia
+            i nie odtworzy utraconej objętości twarzy.</strong> Może optycznie wygładzić skórę i zmniejszyć
+            widoczność napięcia mimicznego, ale efekt zawsze zależy od indywidualnych cech skóry i tkanek.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Czy masaż Kobido naprawdę liftinguje twarz?</h2>
+        <div class="proza">
+          <p>
+            <strong>Tak, masaż Kobido może dawać widoczny efekt liftingujący w sensie kosmetycznym,
+            ale nie jest odpowiednikiem zabiegu chirurgicznego ani medycyny estetycznej.</strong>
+            To najuczciwsza odpowiedź, jakiej możemy udzielić, i warto rozumieć, skąd ten efekt się bierze.
+          </p>
+          <p>
+            Składają się na niego trzy rzeczy. Po pierwsze <strong>napięcie mięśni</strong>. Mięśnie mimiczne
+            i żwacze utrzymywane w stałym skurczu zmieniają wyraz twarzy: opuszczają kąciki ust,
+            pogłębiają bruzdę między brwiami, usztywniają linię żuchwy. Ich rozluźnienie zmienia to,
+            co widzisz w lustrze, choć nic nie zostało przesunięte ani wypełnione.
+          </p>
+          <p>
+            Po drugie <strong>drenaż</strong>. Nadmiar płynu w tkankach sprawia, że twarz wygląda na cięższą
+            i mniej wyraźną. Wsparcie odpływu chłonki może na pewien czas wyostrzyć rysy i zmniejszyć obrzęk powiek.
+            Po trzecie <strong>ukrwienie</strong>. Intensywna praca manualna pobudza mikrokrążenie,
+            przez co skóra bezpośrednio po zabiegu jest bardziej różowa i rozświetlona.
+          </p>
+          <p>
+            Wszystkie trzy mechanizmy mają jedną wspólną cechę: <strong>są odwracalne</strong>.
+            Dlatego efekt jest subtelny, przejściowy i różny u różnych osób. U kogoś z bardzo napiętą twarzą
+            różnica po pierwszym zabiegu bywa uderzająca. U kogoś, kto napięcia praktycznie nie ma,
+            zmiana będzie ledwo zauważalna i to też jest normalne.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Masaż Kobido a zwykły masaż twarzy, czym się różnią?</h2>
+        <div class="proza">
+          <p>
+            Obie formy mają sens, tylko odpowiadają na inne potrzeby. <strong>Jeśli szukasz wyciszenia
+            i przyjemnej pielęgnacji, klasyczny masaż twarzy w zupełności wystarczy. Jeśli chcesz popracować
+            z napięciem mięśni i uzyskać wyraźniejszy efekt wizualny, sięgnij po Kobido.</strong>
+            Poniższa tabela pokazuje, gdzie dokładnie leżą różnice.
+          </p>
+        </div>
+
+        <div class="tabela-owijka" tabindex="0" role="region" aria-label="Porównanie zwykłego masażu twarzy i masażu Kobido">
+          <table class="tabela-porownanie">
+            <thead>
+              <tr>
+                <th scope="col">Element</th>
+                <th scope="col">Zwykły masaż twarzy</th>
+                <th scope="col">Kobido / Kobido Up</th>
+              </tr>
+            </thead>
+            <tbody>
+              {porownanie.map((w) => (
+                <tr>
+                  <th scope="row">{w.element}</th>
+                  <td>{w.zwykly}</td>
+                  <td>{w.kobido}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="proza" style="margin-top:24px">
+          <p>
+            Żadna z tych metod nie jest lepsza w oderwaniu od celu. Osoba z wrażliwą, reaktywną cerą
+            albo taka, która po prostu chce się położyć i wyłączyć myślenie, może czuć się lepiej
+            przy delikatniejszej formie. Pełną ofertę zabiegów znajdziesz w zakładce
+            <a href="/masaze"> masaże</a>, a jeśli nie wiesz, co wybrać, wystarczy zadzwonić i opisać,
+            z czym przychodzisz.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Masaż Kobido Up a napięcie żuchwy i mięśni twarzy</h2>
+        <div class="proza">
+          <p>
+            <strong>Manualna praca na mięśniach twarzy może zmniejszyć odczuwane napięcie w żuchwie, skroniach
+            i karku, ale nie jest leczeniem bruksizmu ani chorób stawu skroniowo żuchwowego.</strong>
+            To rozróżnienie ma znaczenie praktyczne, bo z napiętą żuchwą przychodzi do nas coraz więcej osób.
+          </p>
+          <p>
+            Napięcie rzadko rozkłada się równomiernie. Najczęściej zbiera się w kilku konkretnych miejscach:
+            w żwaczach, czyli mięśniach odpowiedzialnych za zaciskanie zębów, w skroniach, na czole,
+            w okolicy między brwiami, wzdłuż szyi oraz w barkach. U osób pracujących przy komputerze
+            dochodzi do tego <strong>wysunięta do przodu głowa</strong>, która zmienia pracę całego karku,
+            a pośrednio także mięśni twarzy.
+          </p>
+          <p>
+            Praca manualna działa tu w dwie strony. Bezpośrednio, przez rozluźnienie tkanki i poprawę ukrwienia,
+            oraz pośrednio, przez wyciszenie układu nerwowego. Napięcie mięśni twarzy bardzo szybko reaguje
+            na stres, a stres reaguje na to, jak spięte jest ciało. <strong>Wiele osób dopiero na leżance
+            orientuje się, jak mocno na co dzień zaciska zęby.</strong>
+          </p>
+          <p>
+            <strong>Ważne zastrzeżenie:</strong> jeśli budzisz się z bólem szczęki, słyszysz trzaski przy otwieraniu ust,
+            masz starte zęby, ograniczone otwieranie ust albo bóle głowy o niejasnej przyczynie,
+            potrzebna jest diagnostyka. Właściwym adresem jest stomatolog, fizjoterapeuta zajmujący się
+            układem stomatognatycznym albo lekarz. Masaż może być wtedy wsparciem, nigdy zamiennikiem leczenia.
+            Więcej o mechanizmie napięciowych bólów piszemy we wpisie o
+            <a href="/blog/bol-glowy-i-szyi"> bólu głowy i szyi</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Masaż Kobido na opuchniętą twarz, czy pomaga?</h2>
+        <div class="proza">
+          <p>
+            <strong>Techniki drenujące mogą zmniejszyć widoczność przejściowej opuchlizny twarzy,
+            ale efekt jest czasowy, a masaż nie rozwiązuje przyczyn utrzymujących się obrzęków.</strong>
+          </p>
+          <p>
+            Poranna opuchlizna to zwykle skutek nocnego zastoju płynów w tkankach, na który wpływa pozycja we śnie,
+            ilość snu, sól i alkohol z poprzedniego wieczoru, faza cyklu, a czasem także przyjmowane leki.
+            Nie ma w tym nic patologicznego i u większości osób mija samoistnie w ciągu kilku godzin.
+            Delikatne, rytmiczne ruchy prowadzone w kierunku węzłów chłonnych mogą ten proces przyspieszyć,
+            dlatego stanowią stały element wielu masaży twarzy.
+          </p>
+          <p>
+            Świadomie nie używamy określenia „usuwanie toksyn”, bo to hasło marketingowe,
+            a nie opis mechanizmu. Mowa po prostu o wsparciu naturalnego przepływu płynów w tkankach.
+            Efekt jest zauważalny bezpośrednio po zabiegu i stopniowo zanika, dlatego przy porannej opuchliźnie
+            regularność znaczy więcej niż jedna wizyta.
+          </p>
+          <p>
+            <strong>Kiedy odpuścić masaż i pójść do lekarza:</strong> obrzęk pojawia się nagle,
+            jest jednostronny, bolesny, towarzyszy mu zaczerwienienie, gorączka lub duszność,
+            utrzymuje się mimo wypoczętego trybu życia albo narasta z dnia na dzień.
+            Takie objawy wymagają diagnostyki, a nie zabiegu w gabinecie.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Dla kogo jest masaż Kobido?</h2>
+        <div class="proza">
+          <p>
+            Kobido najczęściej wybierają osoby, które mieszczą się w jednej z poniższych sytuacji.
+            Nie trzeba mieć konkretnego problemu, żeby się umówić, ale warto wiedzieć, po co się przychodzi.
+          </p>
+          <p class="punkt">Chcesz zadbać o wygląd twarzy <strong>bez zabiegów inwazyjnych</strong>, igieł i aparatury.</p>
+          <p class="punkt">Czujesz napięcie mięśni twarzy: twardą żuchwę, ciężkie skronie, ściągnięte czoło.</p>
+          <p class="punkt">Szukasz masażu, który jednocześnie odpręża i daje efekt widoczny w lustrze.</p>
+          <p class="punkt">Interesują Cię <strong>naturalne, manualne metody pielęgnacji</strong> jako stały element dbania o siebie.</p>
+          <p class="punkt">Zależy Ci na poprawie wyglądu owalu twarzy i wyrazistości rysów.</p>
+          <p class="punkt">Budzisz się z opuchniętą twarzą i chcesz sprawdzić, czy drenaż coś u Ciebie zmienia.</p>
+          <p class="punkt">Pracujesz przy komputerze i masz stale spięty kark oraz barki. Tu warto rozważyć
+            połączenie Kobido z <a href="/masaze/glowy-i-barki-poznan">masażem głowy i obręczy barkowej</a>.</p>
+          <p class="punkt">Odczuwasz napięcie w okolicy żuchwy, szyi lub karku. <strong>Przy dolegliwościach
+            wymagających diagnostyki masaż nie zastępuje wizyty u specjalisty</strong>, może ją jedynie uzupełniać.</p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Kiedy nie wykonywać masażu Kobido?</h2>
+        <div class="proza">
+          <p>
+            Poniżej sytuacje, w których zabieg trzeba przełożyć albo wcześniej skonsultować.
+            <strong>To nie jest lista diagnoz ani kompletny wykaz przeciwwskazań</strong>,
+            tylko najczęstsze powody, dla których mówimy „nie dzisiaj”.
+          </p>
+          <p class="punkt">Ostre infekcje, gorączka, złe samopoczucie, świeże przeziębienie.</p>
+          <p class="punkt">Aktywne stany zapalne skóry twarzy, ropne zmiany, opryszczka w fazie aktywnej.</p>
+          <p class="punkt">Świeże urazy twarzy, stłuczenia, niezagojone rany i skaleczenia.</p>
+          <p class="punkt"><strong>Świeże zabiegi medycyny estetycznej</strong>: toksyna botulinowa, wypełniacze,
+            mezoterapia, nici. Odstęp ustala lekarz, który je wykonywał.</p>
+          <p class="punkt">Świeże zabiegi chirurgiczne w obrębie twarzy, szyi i głowy oraz okres gojenia po nich.</p>
+          <p class="punkt">Zabiegi złuszczające i laserowe wykonane niedawno, do czasu pełnej regeneracji naskórka.</p>
+          <p class="punkt">Choroby skóry w fazie zaostrzenia, na przykład trądzik różowaty w rzucie czy zmiany o niejasnym charakterze.</p>
+          <p class="punkt">Choroby przewlekłe, zaburzenia krzepnięcia, leczenie onkologiczne oraz ciąża,
+            gdzie decyzja powinna należeć do lekarza prowadzącego.</p>
+          <p>
+            <strong>Jeżeli masz wątpliwości dotyczące przeciwwskazań, przed wizytą skontaktuj się z terapeutą
+            lub lekarzem.</strong> Zadzwoń pod <a href={firma.telefonHref}>{firma.telefon}</a>
+            albo napisz, opisz sytuację i wspólnie ustalimy, czy to dobry moment.
+            Wolimy przełożyć termin niż wykonać zabieg, który komuś zaszkodzi.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Czy masaż Kobido boli?</h2>
+        <div class="proza">
+          <p>
+            <strong>Nie powinien boleć.</strong> Kobido nie działa na zasadzie „im mocniej, tym lepiej”
+            i intensywność zawsze dopasowuje się do osoby, a nie odwrotnie.
+          </p>
+          <p>
+            Część technik jest bardzo delikatna. Drenaż wykonuje się na tyle lekko, że niektórzy zastanawiają się,
+            czy terapeuta w ogóle dotyka twarzy, a zbyt mocny nacisk działałby tu przeciwko celowi.
+            Inne fragmenty są wyraźnie mocniejsze, zwłaszcza praca na żwaczach, przy linii żuchwy i na napiętym karku.
+            Osoby, które zaciskają zęby, często odczuwają tam <strong>tkliwość porównywalną z pracą na spiętym karku</strong>.
+            To uczucie zwykle mieści się w kategorii „przyjemnie mocne”, a nie ostre czy piekące.
+          </p>
+          <p>
+            Jeśli jesteś u nas pierwszy raz, pytamy o nacisk w trakcie zabiegu i prosimy o szczerą odpowiedź.
+            <strong>Jedno słowo wystarczy, żeby zmienić intensywność.</strong> Ból, który każe zaciskać powieki
+            albo wstrzymywać oddech, nie jest oznaką skuteczności, tylko sygnałem, że trzeba odpuścić.
+            Po zabiegu skóra może być zaczerwieniona przez kilka godzin, a mocno napięte okolice lekko wrażliwe do następnego dnia.
+          </p>
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecia.gabinet}
+          alt="Wnętrze gabinetu masażu Rozluźnij Się na Piątkowskiej w Poznaniu, leżanka, zielone zasłony i rośliny"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+        <figcaption>Gabinet przy ulicy Piątkowskiej 94, wejście C. Kobido wykonujemy w tym samym pokoju co masaże ciała.</figcaption>
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak przygotować się do masażu Kobido?</h2>
+        <div class="proza">
+          <p>
+            Przygotowanie jest proste i sprowadza się do kilku rzeczy, które ułatwiają pracę i zwiększają komfort.
+          </p>
+          <p class="punkt">Przyjdź <strong>bez ciężkiego makijażu</strong> albo licz się z tym,
+            że zaczniemy od demakijażu. Zabiera to kilka minut z czasu zabiegu.</p>
+          <p class="punkt">Powiedz o istotnych kwestiach zdrowotnych: chorobach skóry, alergiach,
+            wrażliwości na kosmetyki, przyjmowanych lekach, świeżych urazach.</p>
+          <p class="punkt"><strong>Poinformuj o zabiegach kosmetologicznych i medycyny estetycznej</strong>
+            z ostatnich tygodni i miesięcy. To najważniejsza informacja z całej rozmowy.</p>
+          <p class="punkt">Nie planuj bezpośrednio przed wizytą bardzo intensywnego wysiłku,
+            jeśli źle go tolerujesz, oraz nie przychodź tuż po obfitym posiłku.</p>
+          <p class="punkt">Przyjdź kilka minut wcześniej. Spokojne wejście w zabieg jest częścią zabiegu,
+            a spóźnienie skraca czas pracy.</p>
+          <p class="punkt">Zdejmij soczewki kontaktowe, jeśli je nosisz, oraz kolczyki z okolicy twarzy,
+            gdy mogą przeszkadzać w pracy.</p>
+          <p>
+            Po zabiegu warto przez kilka godzin odpuścić mocny makijaż, saunę, solarium i intensywny trening,
+            zadbać o nawodnienie i nie planować niczego, co wymaga pełnej gotowości.
+            Pozostałe kwestie organizacyjne opisaliśmy na stronie
+            <a href="/pierwsza-wizyta"> pierwszej wizyty</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak wygląda twarz po masażu Kobido?</h2>
+        <div class="proza">
+          <p>
+            <strong>Bezpośrednio po zabiegu twarz jest zwykle rozluźniona, cieplejsza i lżejsza,
+            a skóra wyraźniej ukrwiona.</strong> Najczęstsze reakcje, o których słyszymy w gabinecie, to:
+          </p>
+          <p class="punkt">uczucie lekkości, jakby coś zeszło z twarzy i szczęki,</p>
+          <p class="punkt">rozluźnienie w okolicy żuchwy, skroni i czoła,</p>
+          <p class="punkt">bardziej wypoczęty wygląd i wygładzone rysy,</p>
+          <p class="punkt">rozświetlenie i wyrównany koloryt skóry,</p>
+          <p class="punkt">mniejsza opuchlizna, zwłaszcza w okolicy powiek,</p>
+          <p class="punkt">wyraźniejszy owal twarzy,</p>
+          <p class="punkt"><strong>chwilowe zaczerwienienie</strong>, które u części osób utrzymuje się
+            od kilkunastu minut do kilku godzin.</p>
+          <p>
+            Reakcja skóry jest indywidualna. Cera naczynkowa czerwieni się mocniej i dłużej,
+            cera sucha może potrzebować dodatkowego nawilżenia wieczorem, a osoby bardzo napięte
+            bywają po zabiegu wyraźnie senne. <strong>Nic z tego nie jest powodem do niepokoju</strong>,
+            ale zawsze warto powiedzieć, jeśli coś Cię zaskoczyło, bo przy kolejnej wizycie
+            dobierzemy intensywność inaczej.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak często wykonywać masaż Kobido?</h2>
+        <div class="proza">
+          <p>
+            <strong>Nie ma jednej częstotliwości dobrej dla wszystkich.</strong> Wybór zależy od celu,
+            od tego, jak zareagowała Twoja skóra, i od tego, ile napięcia zbiera się w mięśniach twarzy
+            między jedną wizytą a drugą.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Seria zabiegów</h3>
+        <div class="proza">
+          <p>
+            Seria to kilka wizyt w krótszych odstępach, najczęściej co siedem do czternastu dni.
+            Ma sens wtedy, gdy chcesz popracować z konkretnym napięciem, przygotować się do wydarzenia
+            albo po prostu sprawdzić, jak zmienia się twarz przy regularnej pracy.
+            Odstępy ustalamy po pierwszej wizycie, bo dopiero wtedy wiadomo,
+            jak długo utrzymuje się u Ciebie efekt. Pod taki tryb pomyślany jest
+            <a href="/cennik-masazu-poznan"> pakiet trzech masaży</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h3 class="tytul-tresci tytul-mniejszy">Zabiegi podtrzymujące</h3>
+        <div class="proza">
+          <p>
+            Po serii albo zamiast niej wiele osób wybiera pojedyncze wizyty co kilka tygodni,
+            jako stały element dbania o siebie. Część klientek przychodzi wtedy, kiedy czuje,
+            że twarz robi się ciężka, a żuchwa twarda, i to również jest sensowne podejście.
+            <strong>Regularność zwykle daje więcej niż długość pojedynczego zabiegu</strong>,
+            ale nie ma powodu, żeby narzucać komuś rytm, który mu nie pasuje.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Ile kosztuje masaż Kobido w Poznaniu?</h2>
+        <div class="proza">
+          <p>
+            <strong>Cena masażu Kobido zależy między innymi od czasu trwania zabiegu, zakresu pracy,
+            doświadczenia terapeuty oraz tego, czy masaż jest połączony z dodatkowymi elementami
+            pielęgnacyjnymi.</strong> W poznańskich gabinetach rozpiętość jest spora, dlatego zamiast
+            podawać średnie z rynku, pokazujemy nasze aktualne stawki.
+          </p>
+        </div>
+
+        <div class="cennik" style="margin-top:24px">
+          <a class="cennik-wiersz" href={`/masaze/${kobido.slug}`}>
+            <span class="cennik-nazwa">{kobido.nazwa}, 60 minut</span>
+            <p class="cennik-ceny">
+              {kobido.ceny.map((c) => (
+                <span class={c.startsWith('Pakiet') ? 'cennik-pakiet' : undefined}>{c}</span>
+              ))}
+            </p>
+          </a>
+        </div>
+
+        <div class="proza" style="margin-top:24px">
+          <p>
+            Ceny mogą się zmieniać, a <strong>najbardziej aktualny cennik i wolne terminy zawsze widać w Booksy</strong>.
+            Pozostałe zabiegi zebraliśmy w <a href="/cennik-masazu-poznan">cenniku</a>.
+            Jeśli szukasz prezentu, Kobido można kupić także jako
+            <a href="/vouchery"> voucher podarunkowy</a>, z dedykacją i w wersji do wydruku.
+          </p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Jak wybrać miejsce na masaż Kobido Up w Poznaniu?</h2>
+        <div class="proza">
+          <p>
+            Kobido nie jest zabiegiem, który da się dobrze wykonać po jednym popołudniowym kursie.
+            Praca odbywa się na twarzy, blisko oczu, węzłów chłonnych i wrażliwych struktur,
+            więc <strong>znajomość anatomii ma tu znaczenie praktyczne, a nie tylko marketingowe</strong>.
+            Zanim zarezerwujesz termin, sprawdź kilka rzeczy.
+          </p>
+          <p class="punkt"><strong>Doświadczenie i wykształcenie osoby wykonującej zabieg.</strong>
+            Czy pracuje z ciałem na co dzień, czy Kobido jest dodatkiem do zupełnie innej usługi.</p>
+          <p class="punkt"><strong>Szkolenia i certyfikaty</strong> potwierdzające ukończenie kursu Kobido,
+            a nie samo hasło w cenniku.</p>
+          <p class="punkt">Higiena: jednorazowe podkłady, czyste ręce i narzędzia, uporządkowane stanowisko.</p>
+          <p class="punkt">Rozmowa przed zabiegiem i pytania o zdrowie, zabiegi estetyczne i wrażliwość skóry.
+            Gabinet, który o nic nie pyta, powinien dać do myślenia.</p>
+          <p class="punkt">Jasny opis przebiegu zabiegu: ile trwa, co obejmuje, czy praca sięga szyi i karku.</p>
+          <p class="punkt">Realne opinie klientów, najlepiej takie, które opisują konkretną wizytę,
+            a nie same gwiazdki.</p>
+          <p class="punkt"><strong>Przejrzysty cennik</strong> bez dopłat pojawiających się dopiero na miejscu.</p>
+          <p class="punkt">Wygodna rezerwacja i możliwość zadania pytania przed wizytą.</p>
+          <p class="punkt">Uczciwa komunikacja efektów. Obietnica usunięcia zmarszczek jednym masażem
+            mówi więcej o gabinecie niż o zabiegu.</p>
+        </div>
+      </div>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Masaż Kobido Up Poznań: dlaczego warto wybrać nasz gabinet</h2>
+        <div class="proza">
+          <p>
+            Jesteśmy małym gabinetem masażu przy <strong>{adres}</strong>, na Piątkowie,
+            w zasięgu ręki dla mieszkańców Winograd, Winiar, Podolan i Sołacza.
+            Kobido prowadzi u nas <a href="/o-nas/nicole-stokowska">Nicole Stokowska</a>, technik masażysta,
+            dla której <strong>japoński lifting twarzy jest ulubionym zabiegiem</strong>, a nie pozycją dopisaną do oferty.
+          </p>
+          <p class="punkt"><strong>Zabieg trwa pełną godzinę</strong> i obejmuje twarz, szyję, kark oraz dekolt,
+            a nie tylko kilkanaście minut pracy na samej twarzy.</p>
+          <p class="punkt">Możesz wybrać wariant <strong>Kobido z kinesiotapingiem</strong>, w którym po masażu
+            zakładamy plastry na wybrane okolice twarzy.</p>
+          <p class="punkt">Każda wizyta zaczyna się od rozmowy. Pytamy o zabiegi estetyczne,
+            wrażliwość skóry i o to, gdzie zbiera się u Ciebie napięcie.</p>
+          <p class="punkt">Pracujemy w jednym gabinecie, bez pośpiechu i bez nakładających się terminów.
+            Nikt nie czeka pod drzwiami z ręką na klamce.</p>
+          <p class="punkt">Nie obiecujemy usunięcia zmarszczek ani efektów porównywalnych z medycyną estetyczną.
+            <strong> Mówimy wprost, czego można się spodziewać.</strong></p>
+          <p class="punkt">Jeśli Twoje napięcie zaczyna się niżej, powiemy o tym i zaproponujemy
+            <a href="/masaze/glowy-i-barki-poznan"> masaż głowy i obręczy barkowej</a>
+            albo <a href="/masaze/tkanek-glebokich-poznan">pracę na tkankach głębokich</a> zamiast kolejnej wizyty na Kobido.</p>
+          <p class="punkt">Rezerwujesz online przez Booksy albo telefonicznie, a w tygodniu przyjmujemy
+            do godziny {godziny[0].do}, w soboty do {sobota.do}.</p>
+          <p>
+            Pełny opis zabiegu znajdziesz na stronie
+            <a href={`/masaze/${kobido.slug}`}> masażu Kobido w Poznaniu</a>,
+            a wszystkie nasze zabiegi w zakładce <a href="/masaze">masaże</a>.
+            Masz pytanie, na które nie odpowiedzieliśmy? Napisz albo zadzwoń,
+            dane znajdziesz w <a href="/kontakt">kontakcie</a>.
+          </p>
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecia.nicole}
+          alt="Nicole Stokowska, technik masażysta wykonujący masaż Kobido, w gabinecie Rozluźnij Się w Poznaniu"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+        <figcaption>Nicole Stokowska prowadzi w gabinecie zabiegi Kobido Up.</figcaption>
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Najczęściej zadawane pytania o masaż Kobido Up</h2>
+        <div class="proza" style="margin-bottom:28px">
+          <p>
+            Zebraliśmy pytania, które najczęściej słyszymy przy rezerwacji i na pierwszej wizycie.
+            Jeśli Twojego tu nie ma, zadzwoń pod <a href={firma.telefonHref}>{firma.telefon}</a>.
+          </p>
+        </div>
+
+        <div class="faq">
+          {pytania.map((p, i) => (
+            <details open={i === 0}>
+              <summary>
+                {p.pytanie}
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              </summary>
+              <div class="faq-odpowiedz proza" set:html={p.html} />
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecia.booksy1}
+          alt="Liść monstery na pierwszym planie i leżanka do masażu w tle, gabinet Rozluźnij Się w Poznaniu"
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+      </figure>
+
+      <div class="blok-tresci">
+        <h2 class="tytul-tresci">Umów masaż Kobido Up w Poznaniu</h2>
+        <div class="proza">
+          <p>
+            Jeżeli chcesz sprawdzić, jak Twoja twarz reaguje na godzinę spokojnej, manualnej pracy,
+            i co zmienia rozluźnienie żuchwy, karku oraz mięśni mimicznych,
+            <strong> umów masaż Kobido Up w naszym gabinecie na poznańskim Piątkowie</strong>.
+            Zaczniemy od rozmowy, dobierzemy intensywność do Twojej skóry i powiemy szczerze,
+            czego możesz się spodziewać po pierwszej wizycie, a co wymaga serii.
+          </p>
+          <p>
+            Najwygodniej zarezerwować termin online przez Booksy, gdzie widać wszystkie wolne godziny.
+            Jeśli wolisz najpierw zapytać, zadzwoń pod <a href={firma.telefonHref}>{firma.telefon}</a>
+            albo napisz na <a href={firma.emailHref}>{firma.email}</a>.
+            Odpowiadamy też na wiadomości na Instagramie i Facebooku.
+            <strong> Nie masz pewności, czy Kobido to zabieg dla Ciebie? Zadzwoń przed rezerwacją</strong>,
+            omówimy to spokojnie i bez zobowiązań.
+          </p>
+          <p class="przyciski-cta">
+            <a class="btn btn-glowny" href={firma.booksy} target="_blank" rel="noopener noreferrer">
+              <span set:html={ikony.kalendarz} />Zarezerwuj Kobido w Booksy
+            </a>
+            <a class="btn btn-obrys" href={firma.telefonHref}>
+              <span set:html={ikony.telefon} />Zadzwoń: {firma.telefon}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Czytaj dalej</p>
+      <h2 class="tytul-sekcji">Powiązane wpisy</h2>
+      <div class="karty">
+        {inne.map((w) => (
+          <a class="karta" href={`/blog/${w.slug}`}>
+            <div class="karta-foto">
+              <Image src={miniaturyWpisow[w.slug]} alt={w.tytul} widths={[380, 640]} width={640} quality={70} sizes="(max-width: 900px) 92vw, 30vw" loading="lazy" />
+            </div>
+            <div class="karta-tresc">
+              <MetaWpisu wpis={w} />
+              <h3 class="karta-tytul">{w.tytul}</h3>
+              <p class="karta-cena">{w.lead}</p>
+              <span class="karta-wiecej">Czytaj →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Cta
+    tytul="Masaż Kobido Up w Poznaniu"
+    opis="Godzina pracy z twarzą, szyją i karkiem w gabinecie na Piątkowie. Rezerwacja online przez Booksy albo telefonicznie."
+  />
+
+  <script type="application/ld+json" set:html={JSON.stringify(artykulSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(okruchySchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</Layout>
+
+<style>
+  /* Metryczka nad treścią, oddzielona linią od pierwszego akapitu. */
+  .pasek-metryczki {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 38px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--linia);
+  }
+
+  .pasek-powrot {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--zielen);
+    transition: color 0.18s ease;
+  }
+
+  .pasek-powrot:hover { color: var(--terakota-ciemna); }
+
+  .karta-tresc :global(.meta-wpisu) { margin-bottom: 10px; }
+
+  /* Mniejszy stopień dla H3 wewnątrz sekcji, żeby hierarchia była widoczna. */
+  .tytul-mniejszy { font-size: clamp(20px, 1.7vw, 25px); }
+
+  figcaption {
+    margin-top: 12px;
+    padding-inline: 6px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--szary);
+    text-align: center;
+  }
+
+  /* Etapy zabiegu: numer w kółku i opis obok. */
+  .etapy {
+    display: grid;
+    gap: 14px;
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: etap;
+  }
+
+  .etapy li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 20px 24px;
+    border: 1px solid var(--linia);
+    border-radius: 16px;
+    background: var(--biel);
+    text-align: left;
+  }
+
+  .etap-nr {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--zielen-jasna);
+    font-family: 'Lato', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--zielen);
+  }
+
+  .etap-tytul {
+    margin: 0 0 6px;
+    font-size: 19px;
+    color: var(--zielen-ciemna);
+  }
+
+  .etap-opis { margin: 0; font-size: 16px; }
+  .etap-opis :global(strong) { font-weight: 700; color: var(--zielen); }
+
+  /* Tabela porównawcza. Na wąskich ekranach przewija się w swojej ramce,
+     dlatego strona nie dostaje poziomego paska. */
+  .tabela-owijka {
+    margin-top: 26px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--linia);
+    border-radius: 16px;
+    background: var(--biel);
+  }
+
+  .tabela-porownanie {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 15.5px;
+    line-height: 1.6;
+  }
+
+  .tabela-porownanie th,
+  .tabela-porownanie td {
+    padding: 14px 18px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--linia);
+  }
+
+  .tabela-porownanie thead th {
+    background: var(--zielen-jasna);
+    font-family: 'Lato', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--zielen-ciemna);
+  }
+
+  .tabela-porownanie tbody th {
+    width: 20%;
+    font-family: 'Lato', system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--zielen-ciemna);
+  }
+
+  .tabela-porownanie tbody tr:last-child th,
+  .tabela-porownanie tbody tr:last-child td { border-bottom: 0; }
+
+  .przyciski-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  @media (max-width: 700px) {
+    .etapy li { grid-template-columns: 1fr; gap: 12px; padding: 18px 20px; }
+    .etap-nr { width: 36px; height: 36px; font-size: 14px; }
+    .tabela-porownanie { font-size: 14.5px; }
+    .tabela-porownanie th,
+    .tabela-porownanie td { padding: 12px 14px; }
+  }
+</style>

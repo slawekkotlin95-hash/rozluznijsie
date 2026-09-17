@@ -1,0 +1,49 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Naglowek2 from '../../components/Naglowek2.astro'
+import Cta from '../../components/Cta.astro'
+import { masaze, wskazania, sciezkaMasazu } from '../../config'
+import { zdjeciaMasazy } from '../../data/zdjecia'
+
+---
+
+<Layout
+  tytul="Masaże Poznań | zakres usług gabinetu Rozluźnij Się"
+  opis="Masaże w Poznaniu: Kobido tkanek głębokich relaksacyjny bańką chińską klasyczny i antycellulitowy. Zabieg dobieramy po rozmowie. Gabinet na Piątkowie."
+>
+  <Naglowek2
+    etykieta="Zakres usług"
+    tytul="Dostępne masaże"
+    opis="Każdy zabieg dobieramy indywidualnie, w zależności od stanu zdrowia, oczekiwań i tego, czego potrzebujesz w danym momencie."
+  />
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Pełna lista</p>
+      <h2 class="tytul-sekcji">Wszystkie zabiegi</h2>
+      <div class="karty">
+        {masaze.map((m) => (
+          <a class="karta" href={sciezkaMasazu(m.slug)}>
+            {m.plakietka && <span class="karta-plakietka">{m.plakietka}</span>}
+            <div class="karta-foto">
+              <Image src={zdjeciaMasazy[m.slug]} alt={m.alt} widths={[380, 640]} width={640} quality={70} sizes="(max-width: 900px) 92vw, 30vw" loading="lazy" />
+            </div>
+            <div class="karta-tresc">
+              <h3 class="karta-tytul">{m.nazwa}</h3>
+              {wskazania[m.slug] && (
+
+                <span class={`karta-wskazanie karta-wskazanie-${wskazania[m.slug].kolor}`}>{wskazania[m.slug].tekst}</span>
+
+              )}
+              <p class="karta-cena" set:html={m.opis} />
+              <span class="karta-wiecej">Zobacz szczegóły →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+</Layout>

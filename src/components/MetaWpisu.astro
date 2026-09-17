@@ -1,0 +1,78 @@
+---
+/**
+ * Metryczka wpisu: data publikacji i szacowany czas czytania.
+ * Czas liczy się z treści, więc nie trzeba go nigdzie wpisywać ręcznie,
+ * poza wpisami pisanymi od zera (pole `minuty`).
+ */
+import { dataPolska, type Wpis } from '../data/strony'
+import { minutyCzytania } from '../data/tresc'
+
+interface Props {
+  wpis: Wpis
+  /** Wariant jasny, do użycia na ciemnym tle. */
+  jasny?: boolean
+}
+
+const { wpis, jasny = false } = Astro.props
+const minuty = wpis.minuty ?? minutyCzytania(wpis.zrodlo)
+---
+
+<p class:list={['meta-wpisu', jasny && 'meta-wpisu-jasna']}>
+  <time datetime={wpis.data}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+      <path d="M8 3v4M16 3v4M3 11h18"></path>
+    </svg>
+    {dataPolska(wpis.data)}
+  </time>
+  <span class="meta-kropka" aria-hidden="true"></span>
+  <span>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 7v5l3 2"></path>
+    </svg>
+    {minuty} min czytania
+  </span>
+</p>
+
+<style>
+  .meta-wpisu {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--szary);
+    text-align: left;
+  }
+
+  .meta-wpisu > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .meta-wpisu svg {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    fill: none;
+    stroke: var(--terakota);
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .meta-kropka {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--linia);
+  }
+
+  .meta-wpisu-jasna { color: rgba(255, 255, 255, 0.75); }
+  .meta-wpisu-jasna .meta-kropka { background: rgba(255, 255, 255, 0.35); }
+</style>

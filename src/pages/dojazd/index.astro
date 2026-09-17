@@ -1,0 +1,30 @@
+---
+import StronaTresci from '../../components/StronaTresci.astro'
+import { dzielnice } from '../../config'
+import { zdjeciaDojazdu } from '../../data/zdjecia'
+---
+
+<StronaTresci
+  tytul="Masaż z dojazdem Poznań | Rozluźnij Się"
+  opis="Masaż z dojazdem do klienta w Poznaniu: Ogrody Grunwald Jeżyce Winiary Winogrady Podolany Sołacz i Piątkowo. Przyjeżdżamy z własnym stołem."
+  etykieta="Masaż z dojazdem"
+  naglowek="Przyjeżdżamy z własnym stołem"
+  lead="Ty przygotowujesz trochę miejsca i spokojną godzinę. Resztę przywozimy ze sobą."
+  zrodlo="masaz-z-dojazdem-poznan"
+  waska={true}
+  zdjecie={zdjeciaDojazdu[0].zdjecie}
+  zdjecieAlt={zdjeciaDojazdu[0].alt}
+>
+  <h2 class="tytul-tresci" style="margin-top:48px">Dzielnice, do których dojeżdżamy</h2>
+  <div class="wpisy">
+    {dzielnice.map((d) => (
+      <a class="wpis" href={`/dojazd/${d.slug}`}>
+        <h3>{d.nazwa}</h3>
+        <p>Masaż z dojazdem na {d.nazwa}. Ten sam zakres zabiegów co w gabinecie.</p>
+        <span>Zobacz szczegóły →</span>
+      </a>
+    ))}
+    <a class="wpis" href="/dojazd/dla-seniora-poznan"><h3>Masaż dla seniora</h3><p>Delikatniejsza praca, dostosowane tempo i dojazd pod dom.</p><span>Zobacz szczegóły →</span></a>
+    <a class="wpis" href="/dojazd/w-twoim-domu-poznan"><h3>Relaks w Twoim domu</h3><p>Jak wygląda masaż w domu i co warto przygotować.</p><span>Zobacz szczegóły →</span></a>
+  </div>
+</StronaTresci>

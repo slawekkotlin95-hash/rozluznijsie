@@ -1,0 +1,93 @@
+---
+/**
+ * Szkielet formularza dla całego serwisu. Pola wrzuca strona przez <slot>,
+ * tutaj siedzi tylko to, co wspólne: adres wysyłki, pułapka na boty, przycisk
+ * i komunikat po wysłaniu.
+ *
+ * Zgłoszenia idą POST-em na /api/formularz (funkcja serverless na Vercelu),
+ * która wysyła maila przez Resend. Bez JS formularz i tak wyśle się klasycznie.
+ */
+import { Image } from 'astro:assets'
+import logo from '../assets/output-onlinepngtools.png'
+
+interface Props {
+  /** Temat maila, po nim rozpoznasz w skrzynce, z której podstrony przyszło. */
+  temat: string
+  klasa?: string
+  przycisk?: string
+  klasaPrzycisku?: string
+  /** Nagłówek nad polami, obok logo. Bez niego formularz zaczyna się od pól. */
+  tytul?: string
+  podtytul?: string
+}
+
+const {
+  temat,
+  klasa = '',
+  przycisk = 'Wyślij wiadomość',
+  klasaPrzycisku = 'btn btn-glowny',
+  tytul,
+  podtytul,
+} = Astro.props
+---
+
+<form class={`formularz ${klasa}`} action="/api/formularz" method="POST" data-formularz>
+  <input type="hidden" name="subject" value={temat} />
+    {/* Boty wypełniają wszystko jak leci, ludzie tego pola nie widzą. */}
+    <input type="checkbox" name="botcheck" class="formularz-pulapka" tabindex="-1" autocomplete="off" />
+
+    {tytul && (
+      <div class="formularz-glowka">
+        <span class="formularz-logo">
+          <Image src={logo} alt="" width={160} height={160} quality={95} loading="lazy" />
+        </span>
+        <div>
+          <p class="formularz-tytul">{tytul}</p>
+          {podtytul && <p class="formularz-podtytul">{podtytul}</p>}
+        </div>
+      </div>
+    )}
+
+    <slot />
+
+    <div class="formularz-stopka">
+      <button class={klasaPrzycisku} type="submit">{przycisk}</button>
+      <p class="formularz-status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+<script>
+  // Wysyłka w tle, żeby nie wyrzucać człowieka na obcą stronę z podziękowaniem.
+  // Bez JS formularz i tak wyśle się klasycznie, bo ma action i method.
+  document.querySelectorAll<HTMLFormElement>('form[data-formularz]').forEach((form) => {
+    const status = form.querySelector('.formularz-status') as HTMLParagraphElement
+    const przycisk = form.querySelector('button[type="submit"]') as HTMLButtonElement
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      status.className = 'formularz-status formularz-status-czeka'
+      status.textContent = 'Wysyłam…'
+      przycisk.disabled = true
+
+      try {
+        const dane = Object.fromEntries(new FormData(form).entries())
+        const odpowiedz = await fetch(form.action, {
+          method: 'POST',
+          body: JSON.stringify(dane),
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        })
+        if (!odpowiedz.ok) throw new Error(String(odpowiedz.status))
+
+        form.reset()
+        status.className = 'formularz-status formularz-status-ok'
+        status.textContent = 'Dziękujemy, wiadomość dotarła. Odezwiemy się najszybciej, jak to możliwe.'
+      } catch {
+        status.className = 'formularz-status formularz-status-blad'
+        status.textContent =
+          'Nie udało się wysłać. Zadzwoń pod 572 317 407 albo napisz na rozluznijsiepoznan@gmail.com.'
+      } finally {
+        przycisk.disabled = false
+      }
+    })
+  })
+</script>

@@ -1,0 +1,126 @@
+---
+import { Image } from 'astro:assets'
+import StronaTresci from '../components/StronaTresci.astro'
+import { firma } from '../config'
+import { ikony } from '../data/ikony'
+import { zdjecia } from '../data/zdjecia'
+
+/** Przebieg wizyty spisany tak, jak wygląda naprawdę: od drzwi do stołu. */
+const kroki = [
+  {
+    tytul: 'Przyjdź kilka minut wcześniej',
+    tresc: `Gabinet jest na <strong>ul. Piątkowskiej 94, wejście C</strong>. Jeśli drzwi są
+      zamknięte, to znaczy, że trwa jeszcze poprzedni zabieg, więc po prostu
+      <strong>zaczekaj chwilę na korytarzu</strong>. Te kilka minut zapasu robi różnicę:
+      wchodzisz bez zadyszki, a zabieg zaczyna się o czasie i trwa tyle, ile ma trwać.`,
+  },
+  {
+    tytul: 'Krótki wywiad',
+    tresc: `Zaczynamy od rozmowy. Pytamy, <strong>co boli, od jak dawna</strong>, czy były urazy
+      albo operacje i jak wygląda Twój zwykły dzień. Powiedz też o rzeczach, o które nie zawsze
+      pytamy wprost: <strong>ciąża, nadciśnienie, żylaki, świeże kontuzje, przyjmowane leki</strong>.
+      To nie formalność, tylko to, co realnie zmienia dobór technik i miejsc pracy.`,
+  },
+  {
+    tytul: 'Umawiamy przebieg masażu',
+    tresc: `Ustalamy razem, <strong>na których partiach pracujemy</strong> i jak mocno.
+      Nie musisz znać nazw technik ani niczego wybierać z wyprzedzeniem. Siłę nacisku
+      <strong>dopasowujemy w trakcie</strong>, więc w każdej chwili możesz powiedzieć „mocniej"
+      albo „delikatniej" i to jest zupełnie normalne.`,
+  },
+  {
+    tytul: 'Ręcznik i bielizna jednorazowa czekają na miejscu',
+    tresc: `<strong>Nie musisz nic przynosić.</strong> Dostajesz ręcznik do okrycia, a jeśli tak
+      Ci wygodniej, także <strong>jednorazową bieliznę</strong>. Przez cały zabieg odkrywamy
+      wyłącznie tę część ciała, nad którą właśnie pracujemy, reszta zostaje przykryta.`,
+  },
+  {
+    tytul: 'Rozbierasz się w zasłoniętym miejscu',
+    tresc: `Rozbierasz się <strong>do własnej bielizny albo jednorazowej</strong>.`,
+  },
+  {
+    tytul: 'Zrelaksuj się, masaż się zaczyna',
+    tresc: `Kładziesz się na stole, przykrywamy Cię ręcznikiem i <strong>od tego momentu nie
+      musisz już nic robić</strong>. Przyciszona muzyka, spokojne światło i jedna osoba naraz
+      w gabinecie, więc nikt nie wejdzie i nikt nie czeka pod drzwiami. Jeśli w trakcie coś
+      Ci przeszkadza, temperatura, ułożenie głowy, nacisk, <strong>powiedz śmiało</strong>.`,
+  },
+]
+---
+
+<StronaTresci
+  tytul="Pierwsza wizyta w gabinecie masażu Poznań | Rozluźnij Się"
+  opis="Pierwsza wizyta w gabinecie masażu w Poznaniu: jak się przygotować co zabrać ile trwa zabieg i czego się spodziewać."
+  etykieta="Pierwsza wizyta"
+  naglowek="Pierwszy raz u nas?"
+  lead="Nic nie musisz przygotowywać. Poniżej odpowiadamy na pytania, które słyszymy najczęściej."
+  zrodlo="pierwsza-wizyta"
+>
+  <h2 class="tytul-tresci" style="margin-top:56px">Jak wygląda wizyta krok po kroku</h2>
+  <p class="wstep-galerii">
+    Sześć kroków od wejścia do momentu, w którym już nic nie musisz. Żadnej z tych rzeczy
+    nie trzeba znać wcześniej, przeprowadzimy Cię przez nie na miejscu.
+  </p>
+
+  <ol class="kroki-wizyty">
+    {kroki.map((k, i) => (
+      <li>
+        <span class="krok-numer" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        <div class="krok-tresc">
+          <h3>{k.tytul}</h3>
+          <p set:html={k.tresc} />
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="tytul-tresci" style="margin-top:56px">Tak wygląda gabinet</h2>
+  <p class="wstep-galerii">
+    Jedno pomieszczenie, jedna osoba naraz i kąt do przebrania się na uboczu. Bez poczekalni
+    pełnej ludzi i bez przechodzenia przez pół salonu w ręczniku.
+  </p>
+
+  <div class="galeria-salonu">
+    <figure class="kadr">
+      <Image
+        src={zdjecia.gabinet}
+        alt="Gabinet masażu Rozluźnij Się w Poznaniu: stół do masażu, zielone zasłony i duże okno"
+        widths={[420, 800]}
+        width={800}
+        quality={74}
+        sizes="(max-width: 700px) 92vw, 31vw"
+        loading="lazy"
+      />
+    </figure>
+    <figure class="kadr">
+      <Image
+        src={zdjecia.gabinetStol}
+        alt="Przygotowany stół do masażu ze świeżym podkładem i ręcznikiem"
+        widths={[420, 800]}
+        width={800}
+        quality={74}
+        sizes="(max-width: 700px) 92vw, 31vw"
+        loading="lazy"
+      />
+    </figure>
+    <figure class="kadr">
+      <Image
+        src={zdjecia.gabinet3}
+        alt="Kącik z fotelami w gabinecie masażu na Piątkowie, miejsce na krótką rozmowę przed zabiegiem"
+        widths={[420, 800]}
+        width={800}
+        quality={74}
+        sizes="(max-width: 700px) 92vw, 31vw"
+        loading="lazy"
+      />
+    </figure>
+  </div>
+
+  <div class="uwaga-cennik" style="margin-top:44px">
+    <p>
+      <strong>Nadal masz pytanie, którego tu nie ma?</strong> Zadzwoń albo napisz przed
+      rezerwacją. Odpowiemy konkretnie, bez namawiania na cokolwiek.
+    </p>
+    <a class="btn btn-zielony" href={firma.telefonHref}><span set:html={ikony.telefon} />Zadzwoń: {firma.telefon}</a>
+  </div>
+</StronaTresci>

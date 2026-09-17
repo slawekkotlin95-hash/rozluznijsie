@@ -1,0 +1,142 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from '../components/Naglowek2.astro'
+import Cta from '../components/Cta.astro'
+import { firma } from '../config'
+
+/** Pytania i odpowiedzi. `html` idzie też do danych strukturalnych FAQPage. */
+const pytania = [
+  {
+    pytanie: 'Jak zarezerwować wizytę?',
+    html: `Wizytę zarezerwujesz przez <a href="${firma.booksy}" target="_blank" rel="noopener noreferrer">platformę Booksy</a>,
+      telefonicznie pod numerem <a href="${firma.telefonHref}">${firma.telefon}</a> albo przez media społecznościowe
+      (<a href="${firma.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a> i
+      <a href="${firma.facebook}" target="_blank" rel="noopener noreferrer">Facebook</a>).
+      Jeśli masz pytania, <strong>pomożemy dobrać odpowiedni masaż</strong>.`,
+  },
+  {
+    pytanie: 'Jakie masaże wykonujecie?',
+    html: `W ofercie mamy między innymi <a href="/masaze/klasyczny-poznan">masaż klasyczny</a>,
+      <a href="/masaz-relaksacyjny-poznan">relaksacyjny</a>, <a href="/masaze/banka-chinska-poznan">bańką chińską</a>,
+      <a href="/masaze/sportowy-poznan">sportowy</a>, <a href="/masaze/antycellulitowy-poznan">antycellulitowy</a>,
+      <a href="/masaze/kobido-poznan">Kobido</a>, <a href="/masaze/glowy-i-barki-poznan">masaż głowy i barków</a>
+      oraz <a href="/masaze/tkanek-glebokich-poznan">masaż tkanek głębokich</a>.
+      <strong>Każdy zabieg ma inne działanie</strong>: relaksacyjny odpręża, sportowy regeneruje mięśnie,
+      a Kobido działa liftingująco na twarz. Szczegółowe opisy znajdziesz w zakładce
+      <a href="/masaze">Masaże</a>.`,
+  },
+  {
+    pytanie: 'Czy dojeżdżacie do klienta?',
+    html: `Tak, oferujemy <a href="/dojazd">masaż z dojazdem</a> na terenie Poznania. Dojeżdżamy do klientów
+      indywidualnych, na przykład do domu albo do hotelu, oraz <a href="/dla-firm">do firm</a>:
+      na eventy, konferencje i <a href="/dla-firm/masaz-biurowy-poznan">masaże biurowe</a>.
+      Skontaktuj się z nami, żeby ustalić szczegóły.`,
+  },
+  {
+    pytanie: 'Czy mogę kupić voucher na masaż?',
+    html: `Tak, mamy <a href="/vouchery">vouchery podarunkowe</a>, zarówno na konkretny masaż, jak i na wybraną kwotę.
+      Można je odebrać osobiście albo otrzymać <strong>w formie PDF do samodzielnego wydruku</strong>.
+      Na życzenie dodamy imię, dedykację lub Twoje życzenia.`,
+  },
+  {
+    pytanie: 'Czy masaż musi boleć?',
+    html: `Nie, <strong>masaż nie musi boleć, żeby przynosił efekty</strong>. Przy mocniejszych technikach,
+      takich jak <a href="/masaze/tkanek-glebokich-poznan">tkanki głębokie</a> czy
+      <a href="/masaze/sportowy-poznan">masaż sportowy</a>, możesz odczuwać intensywną pracę na tkankach,
+      ale zawsze dopasowujemy siłę do Twojego komfortu. Komunikacja z masażystą to podstawa.`,
+  },
+  {
+    pytanie: 'Jak przygotować się do masażu?',
+    html: `Nie musisz się specjalnie przygotowywać. Najważniejsze to zadbać o podstawową higienę i ubrać się
+      wygodnie. Warto przyjść kilka minut wcześniej, żeby bez pośpiechu się przebrać i złapać chwilę oddechu.
+      Zalecamy, żeby <strong>nie jeść obfitego posiłku bezpośrednio przed wizytą</strong>.
+      Jeśli masz konkretne dolegliwości, o których powinniśmy wiedzieć, na przykład bóle, urazy albo przebyte
+      operacje, powiedz o nich przed rozpoczęciem masażu. Dobierzemy wtedy technikę i intensywność do Twoich
+      potrzeb. Więcej znajdziesz na stronie <a href="/pierwsza-wizyta">pierwszej wizyty</a>.`,
+  },
+  {
+    pytanie: 'Co, jeśli się spóźnię?',
+    html: `Rozumiemy, że różne rzeczy mogą się zdarzyć, prosimy jednak o punktualność.
+      <strong>Każde spóźnienie skraca czas masażu</strong>, żeby nie wpłynąć na harmonogram kolejnych klientów.
+      Jeśli wiesz, że się spóźnisz, daj nam znać telefonicznie jak najszybciej. Przy opóźnieniu powyżej
+      15 minut zastrzegamy sobie prawo do odwołania wizyty albo jej skrócenia, bez zmniejszenia ceny zabiegu.
+      Szczegóły opisaliśmy w <a href="/regulamin">regulaminie salonu</a>.`,
+  },
+  {
+    pytanie: 'Czy mogę przyjść na masaż podczas miesiączki?',
+    html: `Tak, nie ma przeciwwskazań do wykonania masażu w trakcie miesiączki, o ile czujesz się dobrze.
+      Wiele kobiet decyduje się wtedy na <a href="/masaz-relaksacyjny-poznan">masaż relaksacyjny</a> albo
+      <a href="/masaze/nog-poznan">refleksologiczny</a>, żeby złagodzić napięcia i skurcze.
+      Jeśli planujesz <a href="/masaze/antycellulitowy-poznan">masaż antycellulitowy</a> albo mocniejszy
+      <a href="/masaze/tkanek-glebokich-poznan">masaż tkanek głębokich</a>, <strong>daj znać wcześniej</strong>,
+      żebyśmy mogli dostosować zabieg albo jego intensywność.`,
+  },
+  {
+    pytanie: 'Jaki masaż przy bólu pleców i karku?',
+    html: `Przy bólu pleców czy karku polecamy <a href="/masaze/tkanek-glebokich-poznan">masaż tkanek głębokich</a>,
+      <a href="/masaze/klasyczny-poznan">klasyczny</a> albo <a href="/masaze/glowy-i-barki-poznan">masaż głowy i obręczy barkowej</a>.
+      Działają na różnym poziomie: od rozluźnienia powierzchownego, przez pracę na głębszych warstwach mięśni,
+      aż po redukcję napięć nerwowo-mięśniowych. Jeśli ból ma podłoże stresowe, skuteczny będzie również
+      <a href="/masaz-relaksacyjny-poznan">masaż relaksacyjny</a>. Przed zabiegiem dokładnie omówimy objawy
+      i dobierzemy formę terapii, która <strong>dotrze do przyczyny, a nie tylko chwilowo złagodzi objawy</strong>.
+      Więcej piszemy we wpisach o <a href="/blog/bol-dolnego-odcinka-plecow">bólu dolnego odcinka pleców</a>
+      i <a href="/blog/bol-glowy-i-szyi">bólu głowy i szyi</a>.`,
+  },
+]
+
+// Dane strukturalne: bez znaczników HTML, sam tekst odpowiedzi.
+const czystyTekst = (h: string) => h.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: pytania.map((p) => ({
+    '@type': 'Question',
+    name: p.pytanie,
+    acceptedAnswer: { '@type': 'Answer', text: czystyTekst(p.html) },
+  })),
+}
+---
+
+<Layout
+  tytul="Najczęstsze pytania o masaż Poznań | Rozluźnij Się"
+  opis="Odpowiedzi na najczęstsze pytania o masaż w Poznaniu: rezerwacja przygotowanie do wizyty spóźnienia vouchery i dobór zabiegu przy bólu pleców."
+>
+  <Naglowek2
+    etykieta="FAQ"
+    tytul="Najczęstsze pytania"
+    opis="Pierwsza wizyta w gabinecie masażu? A może po prostu masz kilka wątpliwości, zanim zarezerwujesz termin? To całkowicie normalne."
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="proza" style="margin-bottom:36px">
+        <p>
+          Zebraliśmy tu pytania, które słyszymy najczęściej, przed zabiegiem i po nim.
+          Jeśli nie znajdziesz swojego, <strong>po prostu zadzwoń</strong> pod
+          <a href={firma.telefonHref}>{firma.telefon}</a>. Odpowiadamy też na wiadomości
+          na Instagramie i Facebooku.
+        </p>
+      </div>
+
+      <div class="faq">
+        {pytania.map((p, i) => (
+          <details open={i === 0}>
+            <summary>
+              {p.pytanie}
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            </summary>
+            <div class="faq-odpowiedz proza" set:html={p.html} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Cta
+    tytul="Nadal masz wątpliwości?"
+    opis="Zadzwoń i opisz, z czym przychodzisz. Dobierzemy zabieg razem, jeszcze przed rezerwacją terminu."
+  />
+
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</Layout>

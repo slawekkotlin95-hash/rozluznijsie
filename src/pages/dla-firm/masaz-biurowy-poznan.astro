@@ -1,0 +1,1418 @@
+---
+/**
+ * Landing B2B: masaż biurowy. Paleta i fonty jak w reszcie serwisu, tylko układ
+ * i sekcje są własne, dlatego style siedzą w `.biuro`.
+ */
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import { firma } from '../../config'
+import { zdjecia, zdjeciaBiura } from '../../data/zdjecia'
+import { miasta } from '../../data/miasta'
+import Formularz from '../../components/Formularz.astro'
+
+import ikonaFotel from 'lucide-static/icons/armchair.svg?raw'
+import ikonaCzas from 'lucide-static/icons/clock.svg?raw'
+import ikonaKawa from 'lucide-static/icons/coffee.svg?raw'
+import ikonaEkran from 'lucide-static/icons/monitor-off.svg?raw'
+import ikonaOddech from 'lucide-static/icons/wind.svg?raw'
+import ikonaUsmiech from 'lucide-static/icons/smile.svg?raw'
+import ikonaSerceDlon from 'lucide-static/icons/hand-heart.svg?raw'
+import ikonaZespol from 'lucide-static/icons/users.svg?raw'
+import ikonaOdznaka from 'lucide-static/icons/badge-check.svg?raw'
+import ikonaTarcza from 'lucide-static/icons/shield-check.svg?raw'
+import ikonaIskry from 'lucide-static/icons/sparkles.svg?raw'
+import ikonaKalendarz from 'lucide-static/icons/calendar-check.svg?raw'
+import ikonaBudynek from 'lucide-static/icons/building-2.svg?raw'
+import ikonaUmowa from 'lucide-static/icons/handshake.svg?raw'
+import ikonaTrasa from 'lucide-static/icons/route.svg?raw'
+import ikonaTelefon from 'lucide-static/icons/phone.svg?raw'
+import ikonaMail from 'lucide-static/icons/mail.svg?raw'
+import ikonaWiadomosc from 'lucide-static/icons/message-circle.svg?raw'
+import ikonaUcho from 'lucide-static/icons/ear.svg?raw'
+import ikonaKlejnot from 'lucide-static/icons/gem.svg?raw'
+import ikonaCel from 'lucide-static/icons/target.svg?raw'
+import ikonaLisc from 'lucide-static/icons/leaf.svg?raw'
+import ikonaRakieta from 'lucide-static/icons/rocket.svg?raw'
+import ikonaLaptop from 'lucide-static/icons/laptop.svg?raw'
+import ikonaKonfetti from 'lucide-static/icons/party-popper.svg?raw'
+import ikonaTeczka from 'lucide-static/icons/briefcase.svg?raw'
+import ikonaSiec from 'lucide-static/icons/network.svg?raw'
+import ikonaStetoskop from 'lucide-static/icons/stethoscope.svg?raw'
+import ikonaPinezka from 'lucide-static/icons/map-pin.svg?raw'
+import ikonaKciuk from 'lucide-static/icons/thumbs-up.svg?raw'
+
+const mail = `mailto:${firma.email}?subject=${encodeURIComponent('Masaż biurowy dla firmy')}`
+const doZapytania = '#wycena'
+
+const jakWyglada = [
+  {
+    nr: '01',
+    ikona: ikonaFotel,
+    tytul: 'Krzesło zamiast leżanki',
+    opis: 'Pracownik siada w <strong>profesjonalnym krześle do masażu</strong>, twarzą w podparcie. Nic się nie rozbiera, nie ma olejków ani przebieralni.',
+  },
+  {
+    nr: '02',
+    ikona: ikonaCzas,
+    tytul: 'Od 15 do 30 minut',
+    opis: 'Tyle trwa jedna sesja. To <strong>długość przerwy na kawę</strong>, a nie wyrwa w kalendarzu dnia.',
+  },
+  {
+    nr: '03',
+    ikona: ikonaOddech,
+    tytul: 'Kark, barki, plecy, dłonie',
+    opis: 'Pracuję na tym, co najbardziej cierpi od biurka: <strong>napięty kark, ciężkie barki, dolne plecy i nadgarstki</strong>.',
+  },
+  {
+    nr: '04',
+    ikona: ikonaBudynek,
+    tytul: 'U Was, nie u mnie',
+    opis: 'Nie potrzeba osobnego gabinetu. Wystarczy <strong>kawałek wolnej przestrzeni</strong>: sala spotkań, pusty pokój albo spokojny kąt biura.',
+  },
+]
+
+const proces = [
+  { nr: '01', ikona: ikonaWiadomosc, tytul: 'Piszesz albo dzwonisz', opis: 'Jedna wiadomość wystarczy. Odpowiadam z konkretami, nie z ofertą na dziesięć stron.' },
+  { nr: '02', ikona: ikonaUcho, tytul: 'Poznaję zespół', opis: 'Ilu jest chętnych, jak pracują, ile mają czasu w ciągu dnia. Od tego zależy cała reszta.' },
+  { nr: '03', ikona: ikonaKalendarz, tytul: 'Ustalamy termin i grafik', opis: 'Dostajecie gotowe okienka do zapisów. Wy rozsyłacie je zespołowi, ja pilnuję godzin.' },
+  { nr: '04', ikona: ikonaTrasa, tytul: 'Przyjeżdżam z całym sprzętem', opis: 'Krzesło, podkłady, wszystko swoje. Rozstawiam się w kilka minut i nie blokuję biura.' },
+  { nr: '05', ikona: ikonaSerceDlon, tytul: 'Masaże idą rotacyjnie', opis: 'Jedna osoba wchodzi, druga wraca do pracy. Kolejka płynie sama, bez pilnowania.' },
+  { nr: '06', ikona: ikonaUmowa, tytul: 'Podsumowanie i kolejny termin', opis: 'Mówię, co zauważyłem u zespołu i proponuję rytm dalszej współpracy. Bez zobowiązań.' },
+]
+
+const dlaFirmy = [
+  { ikona: ikonaOdznaka, tytul: 'Benefit, z którego korzystają wszyscy', opis: 'Nie trzeba mieć formy ani chęci na siłownię. Wystarczy usiąść na kwadrans.' },
+  { ikona: ikonaZespol, tytul: 'Employer branding, który widać', opis: 'To benefit, o którym ludzie opowiadają znajomym i wspominają na rozmowach rekrutacyjnych.' },
+  { ikona: ikonaSerceDlon, tytul: 'Realna troska, nie slajd', opis: 'Zespół widzi, że firma zamienia deklaracje o wellbeingu na coś, czego można dotknąć.' },
+  { ikona: ikonaKawa, tytul: 'Regeneracja w środku dnia', opis: 'Przerwa, po której ludzie wracają do zadań spokojniejsi i bardziej obecni.' },
+  { ikona: ikonaTarcza, tytul: 'Uwaga na to, co siedzenie robi z ciałem', opis: 'Regularna praca z napięciami barków i pleców to profilaktyka, a nie leczenie.' },
+  { ikona: ikonaKonfetti, tytul: 'Mocny punkt eventu', opis: 'Na dniu zdrowia, integracji czy konferencji strefa masażu ustawia kolejkę sama.' },
+  { ikona: ikonaIskry, tytul: 'Atmosfera w zespole', opis: 'Dzień masażu to dobry pretekst, żeby ludzie z różnych działów w końcu ze sobą pogadali.' },
+  { ikona: ikonaKciuk, tytul: 'Zero pracy po Waszej stronie', opis: 'Sprzęt, grafik i organizacja są moje. Wy podajecie zespołowi termin.' },
+]
+
+const dlaPracownika = [
+  { ikona: ikonaKawa, tytul: 'Chwila oddechu', opis: 'Kwadrans, w którym nikt niczego nie chce. Tylko cisza i rozluźniony kark.' },
+  { ikona: ikonaEkran, tytul: 'Odklejenie od ekranu', opis: 'Oczy odpoczywają, głowa schodzi z obrotów, ciało przypomina o sobie w dobry sposób.' },
+  { ikona: ikonaOddech, tytul: 'Luźniejsze barki', opis: 'Miejsce, w którym zbiera się cały dzień pracy, w końcu dostaje uwagę.' },
+  { ikona: ikonaUsmiech, tytul: 'Poczucie, że ktoś o tym pomyślał', opis: 'Docenienie, które nie wymaga rozmowy o podwyżce.' },
+  { ikona: ikonaLisc, tytul: 'Moment tylko dla siebie', opis: 'Bez wyrzutów sumienia, w godzinach pracy, bez organizowania czegokolwiek po godzinach.' },
+  { ikona: ikonaStetoskop, tytul: 'Pierwszy kontakt z masażem', opis: 'Dla wielu osób to okazja, żeby w ogóle sprawdzić, jak działa praca z ciałem.' },
+]
+
+const wartosci = [
+  { ikona: ikonaZespol, tytul: 'Człowiek', opis: 'Nie robię dwóch takich samych masaży. Pytam, gdzie boli i jak siedzisz, zanim dotknę barków.' },
+  { ikona: ikonaKlejnot, tytul: 'Jakość doświadczenia', opis: 'Liczy się całość: cisza, spokojne tempo, czysty sprzęt i to, jak ktoś czuje się po wstaniu z krzesła.' },
+  { ikona: ikonaOdznaka, tytul: 'Profesjonalizm', opis: 'Jestem o czasie, przygotowany i nie robię zamieszania w Waszym biurze.' },
+  { ikona: ikonaUcho, tytul: 'Uważność', opis: 'Słucham i reaguję na to, co mówi ciało. Masaż ma być mocny wtedy, kiedy trzeba, i delikatny wtedy, kiedy trzeba.' },
+  { ikona: ikonaCel, tytul: 'Prostota', opis: 'Firma dostaje gotowe rozwiązanie, a nie kolejny projekt do poprowadzenia.' },
+]
+
+const okazje = [
+  { ikona: ikonaKalendarz, tytul: 'Stały benefit', opis: 'Powtarzalny dzień masażu w biurze, na przykład co tydzień albo co dwa tygodnie.' },
+  { ikona: ikonaLisc, tytul: 'Wellbeing day', opis: 'Element programu dbania o dobrostan, obok warsztatów czy konsultacji.' },
+  { ikona: ikonaKonfetti, tytul: 'Event firmowy', opis: 'Strefa masażu na konferencji, dniu otwartym albo świątecznym spotkaniu.' },
+  { ikona: ikonaStetoskop, tytul: 'Dzień zdrowia', opis: 'Praktyczne uzupełnienie badań i porad, coś, co czuć od razu.' },
+  { ikona: ikonaUmowa, tytul: 'Integracja', opis: 'Nietypowy pomysł na dzień, w którym zespół ma po prostu odpocząć.' },
+]
+
+const branze = [
+  { ikona: ikonaLaptop, nazwa: 'Biura i firmy technologiczne' },
+  { ikona: ikonaSiec, nazwa: 'Zespoły projektowe i agencje' },
+  { ikona: ikonaTeczka, nazwa: 'Korporacje i działy HR' },
+  { ikona: ikonaRakieta, nazwa: 'Startupy' },
+  { ikona: ikonaBudynek, nazwa: 'Coworkingi' },
+  { ikona: ikonaZespol, nazwa: 'Zespoły obsługi klienta' },
+  { ikona: ikonaFotel, nazwa: 'Serwisy i praca precyzyjna' },
+  { ikona: ikonaKonfetti, nazwa: 'Organizatorzy eventów' },
+]
+
+const faq = [
+  {
+    p: 'Jak wygląda masaż biurowy w praktyce?',
+    o: 'Pracownik siada w krześle do masażu w swoim ubraniu. Pracuję na karku, barkach, plecach i dłoniach, bez olejków. Po sesji od razu wraca do biurka.',
+  },
+  {
+    p: 'Ile trwa jedna sesja?',
+    o: 'Zwykle od 15 do 30 minut na osobę. Dokładny czas ustalamy wcześniej, zależnie od tego, ile osób chce skorzystać i ile mamy godzin.',
+  },
+  {
+    p: 'Czy pracownik musi się rozbierać?',
+    o: 'Nie. Masaż odbywa się przez ubranie, dlatego sprawdza się w środku dnia pracy.',
+  },
+  {
+    p: 'Czy potrzebny jest osobny gabinet?',
+    o: 'Nie. Wystarczy kawałek wolnej przestrzeni: sala spotkań, wolny pokój albo spokojniejszy kąt biura. Sprzęt przywożę ze sobą.',
+  },
+  {
+    p: 'Ilu pracowników może skorzystać jednego dnia?',
+    o: 'To wynika wprost z długości sesji i liczby zarezerwowanych godzin. Przy krótszych sesjach przez krzesło przechodzi w ciągu dnia więcej osób. Liczbę ustalamy przy pierwszej rozmowie, kiedy wiem, ilu jest chętnych.',
+  },
+  {
+    p: 'Czy dojeżdżasz do firmy?',
+    o: 'Tak, przyjeżdżam do firm na terenie Poznania z całym sprzętem. Nie musicie nic przygotowywać poza kawałkiem wolnej przestrzeni.',
+  },
+  {
+    p: 'Jak wygląda organizacja zapisów?',
+    o: 'Dostajecie gotowy grafik z okienkami. Wy udostępniacie go zespołowi, a ja pilnuję godzin na miejscu, żeby kolejka szła płynnie.',
+  },
+  {
+    p: 'Czy można zorganizować masaż podczas eventu?',
+    o: 'Tak. Przy wydarzeniach pracuję rotacyjnie i krótszymi sesjami, żeby skorzystało jak najwięcej osób.',
+  },
+  {
+    p: 'Czy da się umówić regularne wizyty?',
+    o: 'Tak, to najczęstszy model współpracy. Ustalamy stały dzień i rytm, na przykład co tydzień albo co dwa tygodnie.',
+  },
+  {
+    p: 'Ile to kosztuje?',
+    o: 'Wycena zależy od liczby godzin, liczby osób i tego, czy współpraca ma być stała, czy jednorazowa. Podaję konkretną kwotę od razu przy pierwszej rozmowie, bez ofert na dziesięć stron.',
+  },
+  {
+    p: 'Czy masaż biurowy ma przeciwwskazania?',
+    o: 'Jak każdy masaż. Przed sesją pytam o stan zdrowia i w razie wątpliwości odpuszczam dany obszar albo proponuję łagodniejszą pracę. Nie jest to zabieg leczniczy i nie zastępuje wizyty u lekarza czy fizjoterapeuty.',
+  },
+]
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.p,
+    acceptedAnswer: { '@type': 'Answer', text: f.o },
+  })),
+}
+---
+
+<Layout
+  tytul="Masaż biurowy Poznań | masaż dla firm i zespołów"
+  opis="Masaż biurowy w Poznaniu z dojazdem do firmy. Sesje 15 do 30 minut na krześle, bez rozbierania. Benefit dla pracowników, wellbeing day, event firmowy."
+>
+  <div class="biuro">
+    <!-- ============================== HERO ============================== -->
+    <section class="b-hero">
+      <span class="b-plama b-plama-1" aria-hidden="true"></span>
+      <span class="b-plama b-plama-2" aria-hidden="true"></span>
+      <span class="b-lisc b-lisc-hero" aria-hidden="true"></span>
+      <span class="b-lisc b-lisc-hero-2" aria-hidden="true"></span>
+
+      <div class="b-kontener b-hero-siatka">
+        <div class="b-hero-tresc">
+          <p class="b-badge"><span class="b-kropka" aria-hidden="true"></span>Masaż biurowy dla firm i zespołów</p>
+          <h1>Masaż biurowy, który zespół poczuje <em>tego samego dnia</em></h1>
+          <p class="b-lead">
+            Przyjeżdżam do Twojej firmy z krzesłem do masażu. Pracownik siada w ubraniu,
+            po kilkunastu minutach wraca do biurka z <strong>luźniejszym karkiem i barkami</strong>.
+            Bez organizowania gabinetu i bez przestoju w pracy zespołu.
+          </p>
+
+          <div class="b-cta-rzad">
+            <a class="b-btn b-btn-glowny" href={mail}>Porozmawiajmy o masażu w Twojej firmie</a>
+            <a class="b-btn b-btn-obrys" href={firma.telefonHref}>
+              <span set:html={ikonaTelefon} />Zadzwoń: {firma.telefon}
+            </a>
+          </div>
+
+          <ul class="b-fakty">
+            <li>Dojazd do firm w Poznaniu</li>
+            <li>15 do 30 minut na osobę</li>
+            <li>Masaż przez ubranie</li>
+            <li>Stała współpraca albo jednorazowy event</li>
+          </ul>
+        </div>
+
+        <figure class="b-hero-foto">
+          <div class="b-hero-kadr">
+            <Image
+              src={zdjecia.kamil}
+              alt="Kamil Jędrzejewski, technik masażysta, w gabinecie Rozluźnij Się w Poznaniu"
+              widths={[520, 900]}
+              width={900}
+              quality={78}
+              sizes="(max-width: 900px) 88vw, 40vw"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+          <figcaption class="b-wizytowka">
+            <span class="b-wizytowka-imie">Kamil Jędrzejewski</span>
+            <span class="b-wizytowka-rola">technik masażysta, Rozluźnij Się</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <svg class="b-fala" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="falaGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#133528" />
+            <stop offset="62%" stop-color="#1B4D3E" />
+            <stop offset="100%" stop-color="#2A6C58" />
+          </linearGradient>
+          <linearGradient id="falaGrad2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1B4D3E" />
+            <stop offset="100%" stop-color="#E48659" />
+          </linearGradient>
+        </defs>
+        <path d="M0 64c180 46 320 46 480 14s300-64 480-32 300 62 480 34v40H0z" fill="url(#falaGrad2)" opacity="0.2" />
+        <path d="M0 84c200 40 340 32 500 2s280-56 460-28 300 56 480 30v32H0z" fill="url(#falaGrad)" opacity="0.9" />
+      </svg>
+    </section>
+
+    <!-- =========================== MANIFEST ============================= -->
+    <section class="b-manifest">
+      <div class="b-kontener">
+        <p class="b-manifest-tekst">Ty organizujesz zespół. <strong>Resztą zajmuję się ja.</strong></p>
+        <ul class="b-chipsy">
+          <li>Bez skomplikowanej organizacji</li>
+          <li>Chwila dla pracownika, wartość dla firmy</li>
+          <li>Sprzęt i grafik po mojej stronie</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================= CZYM JEST MASAŻ ========================== -->
+    <section class="b-sekcja" id="czym-jest">
+      <div class="b-kontener">
+        <p class="b-etykieta">Bez tajemnic</p>
+        <h2>Czym właściwie jest masaż biurowy</h2>
+        <p class="b-wstep">
+          To krótki masaż wykonywany <strong>na miejscu, w firmie</strong>, na specjalnym krześle.
+          Pracownik nie musi się przebierać ani nigdzie jechać. Wychodzi na kwadrans zza biurka,
+          a wraca rozluźniony i gotowy na drugą połowę dnia.
+        </p>
+
+        <div class="b-karty b-karty-4">
+          {jakWyglada.map((k) => (
+            <article class="b-karta b-karta-krok">
+              <span class="b-krok-nr">{k.nr}</span>
+              <span class="b-ikona" set:html={k.ikona} />
+              <h3>{k.tytul}</h3>
+              <p set:html={k.opis} />
+            </article>
+          ))}
+        </div>
+
+        <p class="b-dopisek">
+          Masaż biurowy nie jest zabiegiem leczniczym i nie zastępuje wizyty u lekarza
+          czy fizjoterapeuty. To <strong>przerwa, która realnie odciąża ciało</strong> po godzinach
+          przy komputerze.
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================== JAK TO DZIAŁA ========================= -->
+    <section class="b-sekcja b-sekcja-jasna">
+      <span class="b-lisc b-lisc-prawy" aria-hidden="true"></span>
+      <div class="b-kontener">
+        <p class="b-etykieta">Jak to działa</p>
+        <h2>Sześć kroków, z których pięć jest po mojej stronie</h2>
+        <p class="b-wstep">
+          Cała Wasza praca to jedna wiadomość i podanie zespołowi terminu. Resztę biorę na siebie.
+        </p>
+
+        <ol class="b-sciezka">
+          {proces.map((k) => (
+            <li>
+              <span class="b-sciezka-nr">{k.nr}</span>
+              <span class="b-ikona b-ikona-mala" set:html={k.ikona} />
+              <div>
+                <h3>{k.tytul}</h3>
+                <p>{k.opis}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ======================= KORZYŚCI DLA FIRMY ======================= -->
+    <section class="b-sekcja" id="korzysci">
+      <div class="b-kontener">
+        <p class="b-etykieta">Dla osoby decyzyjnej</p>
+        <h2>Co zyskuje Twoja firma</h2>
+        <p class="b-wstep">
+          Masaż w biurze to jeden z niewielu benefitów, których efekt widać <strong>tego samego
+          dnia</strong>, na twarzach ludzi wracających do biurek.
+        </p>
+
+        <div class="b-karty b-karty-4">
+          {dlaFirmy.map((k) => (
+            <article class="b-karta">
+              <span class="b-ikona" set:html={k.ikona} />
+              <h3>{k.tytul}</h3>
+              <p>{k.opis}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== KORZYŚCI DLA PRACOWNIKA ==================== -->
+    <section class="b-sekcja b-sekcja-ciemna">
+      <span class="b-lisc b-lisc-jasny b-lisc-lewy" aria-hidden="true"></span>
+      <div class="b-kontener">
+        <p class="b-etykieta">Dla człowieka przy biurku</p>
+        <h2>A co z tego ma sam pracownik</h2>
+        <p class="b-wstep">
+          Bo benefit ma sens tylko wtedy, kiedy ktoś naprawdę chce z niego skorzystać.
+        </p>
+
+        <div class="b-karty b-karty-3">
+          {dlaPracownika.map((k) => (
+            <article class="b-karta b-karta-ciemna">
+              <span class="b-ikona" set:html={k.ikona} />
+              <h3>{k.tytul}</h3>
+              <p>{k.opis}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ POZNAJMY SIĘ ======================== -->
+    <section class="b-sekcja" id="poznajmy-sie">
+      <div class="b-kontener b-poznajmy">
+        <figure class="b-poznajmy-foto">
+          <Image
+            src={zdjecia.gabinet}
+            alt="Gabinet masażu Rozluźnij Się na Piątkowie w Poznaniu"
+            widths={[520, 900]}
+            width={900}
+            quality={76}
+            sizes="(max-width: 900px) 92vw, 44vw"
+            loading="lazy"
+          />
+        </figure>
+
+        <div class="b-poznajmy-tresc">
+          <p class="b-etykieta">Kto za tym stoi</p>
+          <h2>Cześć, jestem Kamil</h2>
+          <p>
+            Na co dzień pracuję w gabinecie <strong>Rozluźnij Się na Piątkowie w Poznaniu</strong>,
+            najczęściej z ludźmi, którzy przychodzą prosto z pracy. Kark jak deska, barki podciągnięte
+            do uszu, plecy zmęczone ośmioma godzinami w jednej pozycji. Zawsze ta sama historia.
+          </p>
+          <p>
+            W pewnym momencie stwierdziłem, że nie ma sensu czekać, aż ktoś dojedzie do gabinetu.
+            Prościej <strong>przyjechać tam, gdzie to napięcie powstaje</strong>, czyli do biura.
+            Stąd masaż biurowy: krótki, konkretny, w środku dnia pracy.
+          </p>
+          <p>
+            Nie sprzedaję cudów. Kwadrans masażu nie naprawi lat siedzenia, ale potrafi zdjąć
+            z człowieka na tyle dużo, że reszta dnia wygląda inaczej. Zależy mi, żeby ludzie
+            wstawali z krzesła z myślą <strong>„szkoda, że tylko raz w miesiącu"</strong>.
+          </p>
+          <p class="b-poznajmy-cta">
+            <a class="b-btn b-btn-glowny" href={mail}>Porozmawiajmy</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= WARTOŚCI =========================== -->
+    <section class="b-sekcja b-sekcja-jasna">
+      <span class="b-lisc b-lisc-lewy" aria-hidden="true"></span>
+      <div class="b-kontener">
+        <p class="b-etykieta">Zasady, których się trzymam</p>
+        <h2>Dlaczego warto wybrać właśnie mnie</h2>
+        <div class="b-karty b-karty-3">
+          {wartosci.map((w) => (
+            <article class="b-karta b-karta-wartosc">
+              <span class="b-ikona" set:html={w.ikona} />
+              <h3>{w.tytul}</h3>
+              <p>{w.opis}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ REFERENCJA ========================== -->
+    <section class="b-sekcja">
+      <div class="b-kontener">
+        <div class="b-referencja">
+          <figure class="b-referencja-foto">
+            <Image
+              src={zdjecia.biuro}
+              alt="Kamil Jędrzejewski w serwisie telefonów iHelpyou w Poznaniu"
+              widths={[420, 760]}
+              width={760}
+              quality={74}
+              sizes="(max-width: 900px) 92vw, 34vw"
+              loading="lazy"
+            />
+          </figure>
+          <div class="b-referencja-tresc">
+          <p class="b-etykieta">Tak to wygląda w praktyce</p>
+          <p class="b-referencja-tekst">
+            Z poznańskim serwisem telefonów <strong>iHelpyou</strong> pracuję w trybie stałym,
+            <strong> raz w tygodniu</strong>. Serwisant spędza dzień pochylony nad blatem,
+            więc pracujemy głównie na karku, ramionach i nadgarstkach. To model, który da się
+            powtórzyć w każdej firmie, niezależnie od branży.
+          </p>
+          <a class="b-referencja-link" href="https://ihelpyou.pl" target="_blank" rel="noopener noreferrer">
+            iHelpyou.pl, serwis telefonów w Poznaniu
+          </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= ZDJĘCIA Z REALIZACJI =================== -->
+    <section class="b-sekcja b-sekcja-jasna">
+      <div class="b-kontener">
+        <p class="b-etykieta">Zdjęcia z realizacji</p>
+        <h2>Tak to wygląda u klienta</h2>
+        <p class="b-wstep">
+          Nie potrzebuję osobnego gabinetu ani przygotowań z Waszej strony. Wystarczy kawałek
+          wolnej przestrzeni i gniazdko obok: salka, pusty pokój, a przy większych wydarzeniach
+          spokojny róg biura.
+        </p>
+
+        <div class="b-galeria">
+          {zdjeciaBiura.map((z) => (
+            <figure class="b-galeria-kadr">
+              <Image
+                src={z.zdjecie}
+                alt={z.alt}
+                widths={[420, 800]}
+                width={800}
+                quality={74}
+                sizes="(max-width: 800px) 92vw, 31vw"
+                loading="lazy"
+              />
+              <figcaption>{z.podpis}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== DLA JAKICH FIRM ====================== -->
+    <section class="b-sekcja b-sekcja-jasna">
+      <span class="b-lisc b-lisc-prawy" aria-hidden="true"></span>
+      <div class="b-kontener">
+        <p class="b-etykieta">Dla kogo</p>
+        <h2>Sprawdza się wszędzie tam, gdzie ludzie siedzą</h2>
+        <p class="b-wstep">
+          Wielkość zespołu ma mniejsze znaczenie niż to, ile godzin dziennie Wasi ludzie spędzają
+          w jednej pozycji.
+        </p>
+        <ul class="b-branze">
+          {branze.map((b) => (
+            <li>
+              <span class="b-ikona b-ikona-mala" set:html={b.ikona} />
+              {b.nazwa}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================== OKAZJE ============================ -->
+    <section class="b-sekcja">
+      <div class="b-kontener">
+        <p class="b-etykieta">Formaty współpracy</p>
+        <h2>Masaż biurowy na różne okazje</h2>
+        <div class="b-karty b-karty-3">
+          {okazje.map((o) => (
+            <article class="b-karta b-karta-okazja">
+              <span class="b-ikona" set:html={o.ikona} />
+              <h3>{o.tytul}</h3>
+              <p>{o.opis}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ DUŻE CTA =========================== -->
+    <section class="b-cta">
+      <span class="b-plama b-plama-3" aria-hidden="true"></span>
+      <span class="b-lisc b-lisc-jasny b-lisc-lewy" aria-hidden="true"></span>
+      <div class="b-kontener b-cta-tresc">
+        <h2>Sprawdźmy, czy masaż biurowy pasuje do Twojej firmy</h2>
+        <p>
+          Napisz albo zadzwoń i opowiedz mi o swoim zespole. Ustalimy formę współpracy, która
+          ma sens u Was, a nie u kogokolwiek innego.
+        </p>
+        <div class="b-cta-rzad b-cta-rzad-srodek">
+          <a class="b-btn b-btn-jasny" href={doZapytania}>Wypełnij krótki formularz</a>
+          <a class="b-btn b-btn-obrys-jasny" href={firma.telefonHref}>
+            <span set:html={ikonaTelefon} />Zadzwoń: {firma.telefon}
+          </a>
+        </div>
+        <p class="b-cta-drobne">Odpowiadam osobiście, zwykle tego samego dnia.</p>
+      </div>
+    </section>
+
+    <!-- =========================== INNE MIASTA ========================= -->
+    <section class="b-sekcja b-sekcja-jasna">
+      <div class="b-kontener">
+        <p class="b-etykieta">Poza Poznaniem</p>
+        <h2>Dojeżdżamy też do innych miast</h2>
+        <p class="b-wstep">
+          Gabinet i większość terminów mam w Poznaniu, ale do firm z innych miast przyjeżdżam
+          na zamówienie: dni zdrowia, eventy, konferencje i cykliczne wizyty. Jeśli macie biura
+          w kilku miejscach, ułożymy trasę pod jeden wyjazd.
+        </p>
+        <ul class="b-miasta">
+          {miasta.map((m) => (
+            <li>
+              <a href={`/dla-firm/masaz-biurowy-${m.slug}`}>
+                <span class="b-miasta-nazwa">{m.nazwa}</span>
+                <span class="b-miasta-drobne">{m.km} km z Poznania</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================= FORMULARZ ZAPYTANIA ====================== -->
+    <section class="b-sekcja b-sekcja-jasna" id="wycena">
+      <div class="b-kontener">
+        <p class="b-etykieta">Zapytanie o termin</p>
+        <h2>Powiedz, jak to ma wyglądać u Was</h2>
+        <p class="b-wstep">
+          Im więcej wiem z góry, tym szybciej odeślę konkretny plan i wycenę. Nie musisz
+          wypełniać wszystkiego co do minuty, <strong>szacunki w zupełności wystarczą</strong>.
+        </p>
+
+        <div class="formularz-blok">
+        <Formularz
+          temat="Masaż biurowy: zapytanie o termin"
+          przycisk="Wyślij zapytanie"
+          klasa="formularz-b2b"
+          klasaPrzycisku="btn btn-glowny"
+          tytul="Zapytanie o masaż biurowy"
+          podtytul="Odpowiadam osobiście, zwykle tego samego dnia"
+        >
+          <div class="pola">
+            <label class="pole">
+              <span>Firma <b aria-hidden="true">*</b></span>
+              <input type="text" name="firma" required autocomplete="organization" placeholder="Nazwa firmy" />
+            </label>
+            <label class="pole">
+              <span>Osoba kontaktowa <b aria-hidden="true">*</b></span>
+              <input type="text" name="osoba" required autocomplete="name" placeholder="Imię i nazwisko" />
+            </label>
+            <label class="pole">
+              <span>E-mail <b aria-hidden="true">*</b></span>
+              <input type="email" name="email" required autocomplete="email" placeholder="adres@firma.pl" />
+            </label>
+            <label class="pole">
+              <span>Telefon</span>
+              <input type="tel" name="telefon" autocomplete="tel" placeholder="opcjonalnie" />
+            </label>
+
+            <label class="pole">
+              <span>Interesujące terminy <b aria-hidden="true">*</b></span>
+              <input type="text" name="terminy" required placeholder="np. druga połowa października, najlepiej wtorki" />
+            </label>
+            <label class="pole">
+              <span>Ile godzin przewidujecie na całość <b aria-hidden="true">*</b></span>
+              <input type="text" name="godziny" required placeholder="np. 6 godzin" />
+            </label>
+
+            <label class="pole">
+              <span>Liczba osób <b aria-hidden="true">*</b></span>
+              <input type="text" name="osoby" required placeholder="dokładnie albo w przybliżeniu, np. około 20" />
+            </label>
+            <label class="pole">
+              <span>Ile masażu na jednego pracownika</span>
+              <select name="czasNaOsobe">
+                <option value="">Wybierz albo zostaw do ustalenia</option>
+                <option>15 minut</option>
+                <option>20 minut</option>
+                <option>30 minut</option>
+                <option>45 minut</option>
+                <option>60 minut</option>
+                <option>Jeszcze nie wiemy</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset class="wybor">
+            <span>Czy całość ma się odbyć jednego dnia? <b aria-hidden="true">*</b></span>
+            <div class="wybor-siatka">
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Jeden dzień" required />
+                <span>Jeden dzień<small>Wszystko zamykamy za jednym razem</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Kilka dni" />
+                <span>Kilka dni<small>Rozkładamy zespół na dwa albo więcej terminów</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="dni" value="Do ustalenia" />
+                <span>Do ustalenia<small>Doradź, co ma większy sens</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="wybor">
+            <span>Preferowany tryb masażu <b aria-hidden="true">*</b></span>
+            <div class="wybor-siatka">
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Na siedząco, krzesło, 15-20 min" required />
+                <span>Na siedząco<small>Krzesło do masażu, 15–20 minut, bez rozbierania</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Na leżąco, stół, od 30 min" />
+                <span>Na leżąco<small>Stół do masażu, od 30 minut wzwyż</small></span>
+              </label>
+              <label class="wybor-opcja">
+                <input type="radio" name="tryb" value="Do ustalenia" />
+                <span>Nie wiem<small>Dobierzmy razem do tego, ile mamy czasu</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="pola">
+            <label class="pole pole-szerokie">
+              <span>Uwagi</span>
+              <textarea name="uwagi" rows="4" placeholder="Adres, piętro, dostępne pomieszczenie, okazja (np. dzień zdrowia), cokolwiek co pomoże mi się przygotować."></textarea>
+            </label>
+          </div>
+
+          <label class="pole-zgoda">
+            <input type="checkbox" name="zgoda" value="tak" required />
+            <span>
+              Zgadzam się na kontakt w sprawie tego zapytania. Zasady opisaliśmy
+              w <a href="/polityka-prywatnosci">polityce prywatności</a>.
+            </span>
+          </label>
+        </Formularz>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================== FAQ ============================= -->
+    <section class="b-sekcja" id="faq">
+      <div class="b-kontener">
+        <p class="b-etykieta">Pytania pracodawców</p>
+        <h2>Zanim napiszesz</h2>
+        <div class="b-faq">
+          {faq.map((f, i) => (
+            <details open={i === 0}>
+              <summary>{f.p}<span class="b-faq-znak" aria-hidden="true"></span></summary>
+              <p>{f.o}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= KONTAKT =========================== -->
+    <section class="b-sekcja b-sekcja-ciemna" id="kontakt">
+      <span class="b-lisc b-lisc-jasny b-lisc-prawy" aria-hidden="true"></span>
+      <div class="b-kontener b-kontakt">
+        <div>
+          <p class="b-etykieta">Kontakt</p>
+          <h2>Zadbajmy o Twój zespół</h2>
+          <p class="b-wstep">
+            Najszybciej pójdzie telefonicznie, ale jeśli wolisz mieć wszystko na piśmie, napisz.
+            Wystarczy, że podasz <strong>wielkość zespołu i miasto</strong>, resztę ustalimy razem.
+          </p>
+        </div>
+
+        <div class="b-kontakt-karty">
+          <a class="b-kontakt-karta" href={firma.telefonHref}>
+            <span class="b-ikona" set:html={ikonaTelefon} />
+            <span class="b-kontakt-etykieta">Telefon</span>
+            <span class="b-kontakt-dane">{firma.telefon}</span>
+          </a>
+          <a class="b-kontakt-karta" href={mail}>
+            <span class="b-ikona" set:html={ikonaMail} />
+            <span class="b-kontakt-etykieta">E-mail</span>
+            <span class="b-kontakt-dane">{firma.email}</span>
+          </a>
+          <a class="b-kontakt-karta" href={firma.messenger} target="_blank" rel="noopener noreferrer">
+            <span class="b-ikona" set:html={ikonaWiadomosc} />
+            <span class="b-kontakt-etykieta">Messenger</span>
+            <span class="b-kontakt-dane">Napisz wiadomość</span>
+          </a>
+          <a class="b-kontakt-karta" href="/kontakt">
+            <span class="b-ikona" set:html={ikonaPinezka} />
+            <span class="b-kontakt-etykieta">Gabinet</span>
+            <span class="b-kontakt-dane">{firma.ulica}, {firma.miasto}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== STICKY CTA ========================== -->
+    <div class="b-sticky" id="b-sticky">
+      <span class="b-sticky-tekst">Masaż biurowy dla Twojego zespołu</span>
+      <a class="b-btn b-btn-glowny b-sticky-mail" href={doZapytania}>Zapytaj o ofertę dla firmy</a>
+      <a class="b-btn b-btn-glowny b-sticky-tel" href={firma.telefonHref}>
+        <span set:html={ikonaTelefon} />Zadzwoń
+      </a>
+      <a class="b-btn b-btn-obrys b-sticky-msg" href={mail}>Napisz</a>
+    </div>
+  </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</Layout>
+
+<style is:global>
+  /* Na tej podstronie chowamy globalne pływające elementy: CTA do Booksy jest
+     dla klienta indywidualnego, tutaj prowadzimy rozmowę B2B. */
+  body:has(.biuro) .rog-akcje,
+  body:has(.biuro) .pasek-boczny { display: none; }
+</style>
+
+<style>
+  .biuro {
+    /* ta sama paleta co reszta serwisu, tylko ułożona pod układ B2B */
+    --granat: var(--zielen-ciemna);
+    --niebieski: var(--zielen);
+    --zielony: var(--terakota);
+    --zielony-ciemny: var(--terakota-ciemna);
+    --tekst-2: var(--szary);
+    --jasna: var(--zielen-jasna);
+    --wyroz: #fbf1ea;
+    --cien: 0 26px 60px -34px rgba(19, 53, 40, 0.45);
+
+    background: var(--tlo);
+    color: var(--tekst);
+    font-family: 'Lato', system-ui, -apple-system, sans-serif;
+  }
+
+  .biuro :where(h1, h2, h3) {
+    font-weight: 900;
+    line-height: 1.14;
+    letter-spacing: -0.012em;
+    color: var(--granat);
+    margin: 0;
+  }
+
+  /* Liść monstery, ten sam znak wodny co w reszcie serwisu. */
+  .b-lisc {
+    position: absolute;
+    z-index: 0;
+    width: 520px;
+    height: 520px;
+    background: url('/monstera.png') no-repeat center / contain;
+    opacity: 0.14;
+    pointer-events: none;
+  }
+  .b-lisc-hero { left: -150px; bottom: -170px; width: 600px; height: 600px; transform: rotate(18deg); }
+  .b-lisc-hero-2 { right: -120px; top: -160px; width: 420px; height: 420px; opacity: 0.1; transform: rotate(-26deg) scaleX(-1); }
+  .b-lisc-lewy { left: -170px; bottom: -180px; transform: rotate(24deg) scaleX(-1); }
+  .b-lisc-prawy { right: -170px; top: -160px; transform: rotate(-16deg); }
+  .b-lisc-jasny { filter: brightness(0) invert(1); opacity: 0.12; }
+
+  .biuro p { text-align: left; }
+
+  .b-kontener {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  .b-etykieta {
+    margin: 0 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--niebieski);
+  }
+
+  .b-wstep {
+    max-width: 64ch;
+    margin: 14px 0 0;
+    font-size: 16.5px;
+    line-height: 1.72;
+    color: var(--tekst-2);
+  }
+
+  .b-dopisek {
+    margin: 22px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--linia);
+    border-radius: 14px;
+    background: var(--zielen-jasna);
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--tekst-2);
+  }
+
+  /* ------------------------------ przyciski ----------------------------- */
+  .b-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 56px;
+    padding-inline: 28px;
+    border-radius: 999px;
+    font-size: 15.5px;
+    font-weight: 700;
+    text-align: center;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease,
+      color 0.18s ease, border-color 0.18s ease;
+  }
+  .b-btn :global(svg) { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .b-btn > span { display: flex; align-items: center; }
+
+  .b-btn-glowny {
+    color: var(--biel);
+    background: var(--terakota);
+    box-shadow: 0 14px 30px -14px rgba(201, 107, 64, 0.9);
+  }
+  .b-btn-glowny:hover { background: var(--terakota-ciemna); transform: translateY(-2px); }
+
+  .b-btn-obrys {
+    color: var(--granat);
+    background: var(--biel);
+    border: 1.5px solid var(--linia);
+  }
+  .b-btn-obrys:hover { border-color: var(--niebieski); color: var(--niebieski); transform: translateY(-2px); }
+
+  .b-btn-jasny { color: var(--granat); background: var(--biel); }
+  .b-btn-jasny:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5); }
+
+  .b-btn-obrys-jasny {
+    color: var(--biel);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+  }
+  .b-btn-obrys-jasny:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
+
+  .b-cta-rzad { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .b-cta-rzad-srodek { justify-content: center; }
+
+  /* -------------------------------- hero -------------------------------- */
+  .b-hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: 72px 130px;
+    background:
+      radial-gradient(1100px 520px at 12% -8%, #e7efe9 0%, transparent 62%),
+      radial-gradient(760px 460px at 92% 10%, #fbeade 0%, transparent 58%),
+      var(--biel);
+  }
+
+  .b-plama {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .b-plama-1 { width: 420px; height: 420px; top: -140px; left: -120px; background: #a9c6b8; }
+  .b-plama-2 { width: 360px; height: 360px; right: -110px; bottom: 40px; background: #f0bb99; }
+  .b-plama-3 { width: 520px; height: 520px; top: -180px; right: -140px; background: #e48659; opacity: 0.3; }
+
+  .b-hero-siatka {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    align-items: center;
+    gap: 54px;
+  }
+
+  .b-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 22px;
+    padding: 8px 16px 8px 12px;
+    border: 1px solid var(--linia);
+    border-radius: 999px;
+    background: var(--biel);
+    box-shadow: 0 10px 24px -18px rgba(19, 53, 40, 0.6);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--granat);
+  }
+  .b-kropka {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--terakota);
+    box-shadow: 0 0 0 4px rgba(228, 134, 89, 0.2);
+  }
+
+  .b-hero h1 { font-size: clamp(28px, 3.4vw, 46px); }
+  .b-hero h1 em { font-style: normal; color: var(--terakota-ciemna); }
+
+  .b-lead {
+    max-width: 56ch;
+    margin: 20px 0 0;
+    font-size: 17px;
+    line-height: 1.72;
+    color: var(--tekst-2);
+  }
+  .b-lead strong { color: var(--granat); font-weight: 700; }
+
+  .b-fakty {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin: 30px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    color: var(--tekst-2);
+  }
+  .b-fakty li { display: flex; align-items: center; gap: 8px; text-align: left; }
+  .b-fakty li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--zielony);
+  }
+
+  .b-hero-foto { position: relative; margin: 0; }
+  .b-hero-kadr {
+    position: relative;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: var(--cien);
+  }
+  .b-hero-kadr::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(19, 53, 40, 0.05) 0%, rgba(19, 53, 40, 0.22) 100%);
+  }
+  .b-hero-kadr img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 62% 18%;
+  }
+  .b-hero-foto::after {
+    content: '';
+    position: absolute;
+    inset: -18px -18px 30px -18px;
+    z-index: -1;
+    border-radius: 40px;
+    background: linear-gradient(140deg, rgba(27, 77, 62, 0.3), rgba(228, 134, 89, 0.3));
+    filter: blur(26px);
+  }
+
+  .b-wizytowka {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    z-index: 2;
+    display: grid;
+    padding: 12px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 18px 36px -22px rgba(19, 53, 40, 0.8);
+  }
+  .b-wizytowka-imie { font-weight: 900; color: var(--granat); }
+  .b-wizytowka-rola { font-size: 13px; color: var(--tekst-2); }
+
+  .b-fala { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 110px; }
+
+  /* ------------------------------ manifest ------------------------------ */
+  .b-manifest {
+    padding-block: 40px;
+    background: linear-gradient(96deg, var(--zielen-ciemna) 0%, var(--zielen) 62%, #2a6c58 100%);
+    color: var(--biel);
+  }
+  .b-manifest .b-kontener {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .b-manifest-tekst {
+    margin: 0;
+    font-size: clamp(18px, 1.9vw, 23px);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .b-manifest-tekst strong { font-weight: 900; color: var(--biel); }
+
+  .b-chipsy { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .b-chipsy li {
+    padding: 7px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 999px;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  /* ------------------------------- sekcje ------------------------------- */
+  .b-sekcja { position: relative; overflow: hidden; padding-block: 78px; }
+  .b-sekcja .b-kontener { position: relative; z-index: 1; }
+  .b-sekcja h2 { font-size: clamp(23px, 2.4vw, 33px); max-width: 22ch; }
+  .b-sekcja-jasna { background: var(--jasna); }
+  .b-sekcja-ciemna {
+    background:
+      radial-gradient(720px 420px at 15% 0%, rgba(42, 108, 88, 0.55) 0%, transparent 60%),
+      radial-gradient(620px 400px at 88% 100%, rgba(228, 134, 89, 0.2) 0%, transparent 58%),
+      var(--granat);
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .b-sekcja-ciemna :where(h2, h3) { color: var(--biel); }
+  .b-sekcja-ciemna .b-etykieta { color: var(--terakota); }
+  .b-sekcja-ciemna .b-wstep { color: rgba(255, 255, 255, 0.74); }
+  .b-sekcja-ciemna .b-wstep strong { color: var(--biel); }
+
+  /* -------------------------------- karty ------------------------------- */
+  .b-karty { display: grid; gap: 18px; margin-top: 44px; }
+  .b-karty-4 { grid-template-columns: repeat(4, 1fr); }
+  .b-karty-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .b-karta {
+    position: relative;
+    padding: 30px 26px 28px;
+    border: 1px solid var(--linia);
+    border-radius: 22px;
+    background: var(--biel);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .b-karta:hover {
+    transform: translateY(-4px);
+    border-color: rgba(27, 77, 62, 0.32);
+    box-shadow: var(--cien);
+  }
+  .b-karta h3 { margin: 14px 0 8px; font-size: 17.5px; }
+  .b-karta p { margin: 0; font-size: 15px; line-height: 1.66; color: var(--tekst-2); }
+  .b-karta p strong { color: var(--granat); font-weight: 700; }
+
+  .b-karta-ciemna {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .b-karta-ciemna:hover { border-color: rgba(228, 134, 89, 0.55); background: rgba(255, 255, 255, 0.1); }
+  .b-karta-ciemna p { color: rgba(255, 255, 255, 0.72); }
+
+  .b-ikona {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    color: var(--niebieski);
+    background: linear-gradient(140deg, var(--zielen-jasna), #fbf1ea);
+    transition: transform 0.22s ease;
+  }
+  .b-ikona :global(svg) { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+  .b-karta:hover .b-ikona { transform: rotate(-6deg) scale(1.06); }
+  .b-ikona-mala { width: 42px; height: 42px; border-radius: 13px; }
+  .b-ikona-mala :global(svg) { width: 20px; height: 20px; }
+  .b-sekcja-ciemna .b-ikona { color: var(--terakota); background: rgba(255, 255, 255, 0.1); }
+
+  .b-krok-nr {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    font-size: 30px;
+    font-weight: 900;
+    color: rgba(27, 77, 62, 0.16);
+  }
+  .b-karta-wartosc h3 { text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; color: var(--niebieski); }
+  .b-karta-okazja { background: linear-gradient(180deg, var(--biel) 0%, #f7f3ee 100%); }
+
+  /* ------------------------------- ścieżka ------------------------------ */
+  .b-sciezka {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 44px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: krok;
+  }
+  .b-sciezka li {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: start;
+    gap: 16px;
+    padding: 24px 26px;
+    border: 1px solid var(--linia);
+    border-radius: 20px;
+    background: var(--biel);
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .b-sciezka li:hover { transform: translateX(4px); box-shadow: var(--cien); }
+  .b-sciezka-nr {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--zielony-ciemny);
+    padding-top: 10px;
+  }
+  .b-sciezka h3 { font-size: 16.5px; margin-bottom: 6px; }
+  .b-sciezka p { margin: 0; font-size: 14.5px; line-height: 1.62; color: var(--tekst-2); }
+
+  /* ------------------------------ poznajmy ------------------------------ */
+  .b-poznajmy {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    align-items: center;
+    gap: 54px;
+  }
+  .b-poznajmy-foto { margin: 0; border-radius: 26px; overflow: hidden; box-shadow: var(--cien); }
+  .b-poznajmy-foto img { display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .b-poznajmy-tresc h2 { margin-bottom: 18px; }
+  .b-poznajmy-tresc p { margin: 0 0 15px; font-size: 16px; line-height: 1.75; color: var(--tekst-2); }
+  .b-poznajmy-tresc p strong { color: var(--granat); font-weight: 700; }
+  .b-poznajmy-cta { margin-top: 26px !important; }
+
+  /* ----------------------------- referencja ----------------------------- */
+  .b-referencja {
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    align-items: center;
+    gap: 40px;
+    padding: 40px 44px;
+    border-radius: 26px;
+    border: 1px solid var(--linia);
+    background: linear-gradient(120deg, var(--zielen-jasna) 0%, #fbf1ea 100%);
+  }
+  .b-referencja-tekst {
+    max-width: 74ch;
+    margin: 0;
+    font-size: clamp(17px, 1.7vw, 21px);
+    line-height: 1.6;
+    color: var(--granat);
+  }
+  .b-referencja-foto { margin: 0; border-radius: 20px; overflow: hidden; box-shadow: var(--cien); }
+  .b-referencja-foto img { display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+  .b-referencja-link {
+    display: inline-block;
+    margin-top: 18px;
+    font-weight: 700;
+    color: var(--niebieski);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* ------------------------------- branże ------------------------------- */
+  .b-branze {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .b-branze li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border: 1px solid var(--linia);
+    border-radius: 16px;
+    background: var(--biel);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--granat);
+    text-align: left;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .b-branze li:hover { border-color: var(--zielony); transform: translateY(-3px); }
+
+  /* -------------------------------- CTA --------------------------------- */
+  .b-cta {
+    position: relative;
+    overflow: hidden;
+    padding-block: 96px;
+    background: linear-gradient(120deg, var(--zielen-ciemna) 0%, var(--zielen) 58%, #2a6c58 100%);
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .b-cta-tresc { position: relative; z-index: 1; text-align: center; }
+  .b-cta h2 { max-width: 24ch; margin: 0 auto 18px; font-size: clamp(24px, 2.7vw, 36px); color: var(--biel); }
+  .b-cta p { max-width: 60ch; margin: 0 auto; font-size: 16.5px; line-height: 1.72; text-align: center; }
+  .b-cta-drobne { margin-top: 22px !important; font-size: 14px; color: rgba(255, 255, 255, 0.6); }
+
+  /* -------------------------------- FAQ --------------------------------- */
+  .b-faq { display: grid; gap: 12px; margin-top: 40px; }
+  .b-faq details {
+    border: 1px solid var(--linia);
+    border-radius: 18px;
+    background: var(--biel);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .b-faq details[open] { border-color: rgba(27, 77, 62, 0.32); box-shadow: var(--cien); }
+  .b-faq summary {
+    font-size: 16.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 26px;
+    font-weight: 700;
+    color: var(--granat);
+    cursor: pointer;
+    list-style: none;
+  }
+  .b-faq summary::-webkit-details-marker { display: none; }
+  .b-faq-znak {
+    position: relative;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--jasna);
+    transition: background 0.2s ease, transform 0.25s ease;
+  }
+  .b-faq-znak::before,
+  .b-faq-znak::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 11px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--zielen);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
+  }
+  .b-faq-znak::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .b-faq details[open] .b-faq-znak { background: var(--wyroz); }
+  .b-faq details[open] .b-faq-znak::after { opacity: 0; }
+  .b-faq p { margin: 0; padding: 0 26px 24px; font-size: 15.5px; line-height: 1.72; color: var(--tekst-2); }
+
+  /* ------------------------------ kontakt ------------------------------- */
+  .b-kontakt { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; align-items: center; }
+  .b-kontakt-karty { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .b-kontakt-karta {
+    display: grid;
+    gap: 4px;
+    padding: 24px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+  .b-kontakt-karta:hover { transform: translateY(-4px); border-color: rgba(228, 134, 89, 0.55); background: rgba(255, 255, 255, 0.1); }
+  .b-kontakt-karta .b-ikona { margin-bottom: 12px; }
+  .b-kontakt-etykieta { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--terakota); }
+  .b-kontakt-dane { font-weight: 700; color: var(--biel); }
+
+  /* ----------------------------- sticky CTA ----------------------------- */
+  .b-sticky {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px 12px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--linia);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 24px 46px -26px rgba(19, 53, 40, 0.8);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  }
+  .b-sticky[data-widoczne] { opacity: 1; visibility: visible; transform: none; }
+  .b-sticky-tekst { font-size: 14px; font-weight: 600; color: var(--granat); }
+  .b-sticky .b-btn { height: 46px; padding-inline: 22px; font-size: 14px; }
+  .b-sticky-tel, .b-sticky-msg { display: none; }
+
+  /* ------------------------------ animacje ------------------------------ */
+  .b-anim { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .b-anim[data-widoczne] { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .biuro * { animation: none !important; transition: none !important; }
+    .b-anim { opacity: 1; transform: none; }
+  }
+
+  /* ------------------------------- tablet ------------------------------- */
+  @media (max-width: 1100px) {
+    .b-karty-4 { grid-template-columns: repeat(2, 1fr); }
+    .b-branze { grid-template-columns: repeat(2, 1fr); }
+    .b-hero-siatka { grid-template-columns: 1fr; gap: 40px; }
+    .b-hero-foto { max-width: 460px; }
+    .b-poznajmy, .b-kontakt, .b-referencja { grid-template-columns: 1fr; gap: 34px; }
+  }
+
+  @media (max-width: 900px) {
+    .b-karty-3 { grid-template-columns: repeat(2, 1fr); }
+    .b-sciezka { grid-template-columns: 1fr; }
+  }
+
+  /* ------------------------------- telefon ------------------------------ */
+  @media (max-width: 700px) {
+    .b-hero { padding-block: 40px 90px; }
+    .b-lisc { width: 320px; height: 320px; opacity: 0.1; }
+    .b-lisc-hero { width: 360px; height: 360px; left: -120px; bottom: -120px; }
+    .b-lisc-hero-2 { display: none; }
+    .b-sekcja { padding-block: 58px; }
+    .b-sekcja h2 { max-width: none; }
+    .b-kontener { padding-inline: 20px; }
+
+    .b-karty-4, .b-karty-3, .b-branze, .b-kontakt-karty { grid-template-columns: 1fr; }
+    .b-karta { padding: 24px 22px; }
+
+    .b-cta-rzad { flex-direction: column; align-items: stretch; }
+    .b-btn { width: 100%; height: 52px; font-size: 15px; padding-inline: 18px; }
+
+    .b-fakty { gap: 8px 18px; font-size: 13.5px; }
+    .b-referencja { grid-template-columns: 1fr; gap: 24px; padding: 24px 20px; }
+    .b-manifest .b-kontener { flex-direction: column; align-items: flex-start; }
+    .b-faq summary { padding: 18px 20px; font-size: 16px; }
+    .b-faq p { padding: 0 20px 20px; }
+    .b-poznajmy-tresc p { font-size: 16px; }
+
+    /* pasek na dole ekranu, kciuk ma go pod ręką */
+    .b-sticky {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 18px;
+    }
+    .b-sticky-tekst, .b-sticky-mail { display: none; }
+    .b-sticky-tel, .b-sticky-msg { display: inline-flex; flex: 1; }
+    .b-sticky .b-btn { height: 48px; padding-inline: 12px; }
+  }
+</style>
+
+<script>
+  // Delikatne wejście sekcji i pasek CTA, który pokazuje się po hero.
+  const sekcje = document.querySelectorAll('.biuro .b-sekcja, .biuro .b-cta, .biuro .b-manifest')
+  sekcje.forEach((s) => s.classList.add('b-anim'))
+
+  const obserwator = new IntersectionObserver(
+    (wpisy) => {
+      wpisy.forEach((w) => {
+        if (!w.isIntersecting) return
+        w.target.setAttribute('data-widoczne', '')
+        obserwator.unobserve(w.target)
+      })
+    },
+    { rootMargin: '0px 0px -12% 0px' }
+  )
+  sekcje.forEach((s) => obserwator.observe(s))
+
+  const pasek = document.getElementById('b-sticky')
+  const hero = document.querySelector('.biuro .b-hero')
+
+  if (pasek && hero) {
+    new IntersectionObserver(
+      ([wpis]) => pasek.toggleAttribute('data-widoczne', !wpis.isIntersecting),
+      { threshold: 0 }
+    ).observe(hero)
+  }
+</script>

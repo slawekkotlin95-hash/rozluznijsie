@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Naglowek2 from '../../components/Naglowek2.astro'
+import Tresc from '../../components/Tresc.astro'
+import Cta from '../../components/Cta.astro'
+import { zespol } from '../../config'
+import { sekcje } from '../../data/tresc'
+import { zdjecia } from '../../data/zdjecia'
+
+export function getStaticPaths() {
+  return zespol.map((o) => ({ params: { osoba: o.slug }, props: { osoba: o } }))
+}
+
+const { osoba } = Astro.props
+
+const foto: Record<string, ImageMetadata> = {
+  'nicole-stokowska': zdjecia.nicole,
+  'kamil-jedrzejewski': zdjecia.kamil,
+}
+
+const leady: Record<string, string> = {
+  'nicole-stokowska':
+    'Technik masażysta. Pracuje uważnie i bez pośpiechu, specjalizuje się w masażu relaksacyjnym, klasycznym, bańce chińskiej i Kobido UP.',
+  'kamil-jedrzejewski':
+    'Technik masażysta. Pracuje mocniej i bardziej terapeutycznie: tkanki głębokie, masaż sportowy i napięcia z pracy siedzącej.',
+}
+
+const wszystkie = sekcje(osoba.slug)
+// Pierwszy blok idzie obok zdjęcia, reszta pod spodem na całą szerokość.
+const pierwszy = wszystkie.slice(0, 1)
+const reszta = wszystkie.slice(1)
+const uzyte = new Set<string>()
+---
+
+<Layout
+  tytul={`${osoba.imie} | technik masażysta Poznań Rozluźnij Się`}
+  opis={`${osoba.imie} w gabinecie masażu Rozluźnij Się na Piątkowie w Poznaniu. Zakres zabiegów i podejście do pracy.`}
+>
+  <Naglowek2
+    etykieta="Zespół"
+    tytul={osoba.imie}
+    opis={leady[osoba.slug]}
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="dwie-kolumny">
+        <div><Tresc sekcje={pierwszy} uzyte={uzyte} /></div>
+        <figure class="kadr kadr-wysoki">
+          <Image
+            src={foto[osoba.slug]}
+            alt={osoba.imie}
+            widths={[500, 900]}
+            width={900}
+            quality={74}
+            sizes="(max-width: 900px) 92vw, 44vw"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+
+      {reszta.length > 0 && (
+        <div style="margin-top:52px"><Tresc sekcje={reszta} uzyte={uzyte} /></div>
+      )}
+    </div>
+  </section>
+
+  <Cta />
+</Layout>

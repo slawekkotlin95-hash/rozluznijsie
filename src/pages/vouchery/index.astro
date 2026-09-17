@@ -1,0 +1,83 @@
+---
+import { Image } from 'astro:assets'
+import StronaTresci from '../../components/StronaTresci.astro'
+import { ikony } from '../../data/ikony'
+import { firma } from '../../config'
+import { zdjecia, wzoryKart } from '../../data/zdjecia'
+---
+
+<StronaTresci
+  tytul="Vouchery na masaż Poznań | Rozluźnij Się"
+  opis="Voucher podarunkowy na masaż w Poznaniu. Kwotowy albo na konkretny zabieg do odbioru w gabinecie na Piątkowie lub w formie PDF."
+  etykieta="Vouchery"
+  naglowek="Voucher na masaż"
+  lead="Prezent, który nie skończy się w szufladzie. Do wyboru konkretny zabieg albo kwota."
+  zrodlo="vouchery"
+>
+  <h2 class="tytul-tresci" style="margin-top:56px">Jak wygląda voucher</h2>
+  <p class="wstep-galerii">
+    Kartę drukujemy na grubym papierze i wkładamy do koperty, gotową do wręczenia.
+    Jeśli prezent jest na ostatnią chwilę, wysyłamy ten sam wzór w PDF na maila.
+  </p>
+
+  <div class="galeria-voucherow">
+    <figure class="kadr kadr-voucher">
+      <Image
+        src={zdjecia.voucherKoperta}
+        alt="Karta podarunkowa na masaż w bordowej kopercie przewiązanej złotą wstążką"
+        widths={[560, 1000]}
+        width={1000}
+        quality={74}
+        sizes="(max-width: 700px) 92vw, 46vw"
+        loading="lazy"
+      />
+    </figure>
+    <figure class="kadr kadr-voucher">
+      <Image
+        src={zdjecia.voucherKoperty}
+        alt="Koperty w kilku kolorach do wyboru razem z kartą podarunkową na masaż"
+        widths={[480, 900]}
+        width={900}
+        quality={74}
+        sizes="(max-width: 700px) 92vw, 46vw"
+        loading="lazy"
+      />
+    </figure>
+  </div>
+
+  <h2 class="tytul-tresci" style="margin-top:56px">Wzory do wyboru</h2>
+  <p class="wstep-galerii">
+    Wzór dobierasz do okazji. Powiedz przy zamówieniu, który ma być, a jeśli nie masz
+    preferencji, wybierzemy klasyczny.
+  </p>
+
+  <div class="wzory-kart">
+    {wzoryKart.map((w) => (
+      <figure class="wzor-karty">
+        <Image
+          src={w.zdjecie}
+          alt={w.alt}
+          widths={[380, 760]}
+          width={760}
+          quality={76}
+          sizes="(max-width: 700px) 92vw, 30vw"
+          loading="lazy"
+        />
+        <figcaption>{w.nazwa}</figcaption>
+      </figure>
+    ))}
+  </div>
+
+  <div class="uwaga-cennik" style="margin-top:44px">
+    <p>
+      <strong>Nie wiesz, na jaki zabieg wykupić voucher?</strong> Weź kwotowy, a osoba
+      obdarowana sama wybierze masaż i termin. Kartę odbierzesz w gabinecie na Piątkowie
+      albo dostaniesz w PDF.
+    </p>
+    <a class="btn btn-zielony" href={firma.telefonHref}><span set:html={ikony.telefon} />Zamów: {firma.telefon}</a>
+  </div>
+
+  <p style="margin-top:28px">
+    <a class="btn btn-obrys" href="/vouchery/podarunkowy"><span set:html={ikony.prezent} />Więcej o voucherach podarunkowych</a>
+  </p>
+</StronaTresci>

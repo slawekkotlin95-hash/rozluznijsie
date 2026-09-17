@@ -1,0 +1,82 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Naglowek2 from '../../components/Naglowek2.astro'
+import Tresc from '../../components/Tresc.astro'
+import Cta from '../../components/Cta.astro'
+import { masaze, sciezkaMasazu } from '../../config'
+import { sekcje, tresc } from '../../data/tresc'
+import { zdjeciaMasazy } from '../../data/zdjecia'
+import { ikony } from '../../data/ikony'
+import { zrodloTresci } from '../../data/strony'
+
+export function getStaticPaths() {
+  return masaze
+    .filter((m) => m.slug !== 'relaksacyjny-poznan') // ta podstrona ma własny, ręcznie pisany plik
+    .map((m) => ({ params: { usluga: m.slug }, props: { masaz: m } }))
+}
+
+const { masaz } = Astro.props
+const stary = zrodloTresci[`/masaze/${masaz.slug}`]
+const zrodlo = tresc(stary)
+
+// Ceny zostają wyłącznie w cenniku, więc wycinamy je z treści zabiegu.
+// Wycinamy też powtórzony tytuł, który na WordPressie był osobnym akapitem.
+const cena = /\d+\s*z(ł|l)/i
+const tytulPowtorzony = new RegExp(`^\\s*${masaz.nazwa}\\s+Pozna`, 'i')
+
+const wszystkie = sekcje(stary)
+  .map((s) => ({ ...s, bloki: s.bloki.filter((b) => !cena.test(b.tekst) && !tytulPowtorzony.test(b.tekst)) }))
+  .filter((s) => s.tytul || s.bloki.length)
+// Pierwszy akapit idzie do hero jako lead, żeby nagłówek nie wisiał sam.
+const lead = wszystkie[0]?.bloki.find((b) => b.tag === 'p')?.tekst
+const bezLeada = wszystkie.map((s, i) =>
+  i === 0 ? { ...s, bloki: s.bloki.filter((b) => b.tekst !== lead) } : s
+).filter((s) => s.tytul || s.bloki.length)
+
+const pozostale = masaze.filter((m) => m.slug !== masaz.slug).slice(0, 3)
+const uzyte = new Set<string>()
+---
+
+<Layout
+  tytul={`${masaz.nazwa} Poznań | gabinet Rozluźnij Się Piątkowo`}
+  opis={zrodlo.opis || `${masaz.nazwa} w Poznaniu na Piątkowie. Zabieg dobieramy po rozmowie. Rezerwacja online przez Booksy albo telefonicznie.`}
+>
+  <Naglowek2
+    etykieta="Masaż"
+    tytul={`${masaz.nazwa} Poznań`}
+    opis={lead}
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <Tresc sekcje={bezLeada} uzyte={uzyte} zdjecieAlt={masaz.alt} />
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Zobacz też</p>
+      <h2 class="tytul-sekcji">Inne masaże</h2>
+      <div class="karty">
+        {pozostale.map((m) => (
+          <a class="karta" href={sciezkaMasazu(m.slug)}>
+            {m.plakietka && <span class="karta-plakietka">{m.plakietka}</span>}
+            <div class="karta-foto">
+              <Image src={zdjeciaMasazy[m.slug]} alt={m.alt} widths={[380, 640]} width={640} quality={70} sizes="(max-width: 900px) 92vw, 30vw" loading="lazy" />
+            </div>
+            <div class="karta-tresc">
+              <h3 class="karta-tytul">{m.nazwa}</h3>
+              <span class="karta-wiecej">Zobacz szczegóły →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <p class="srodkowany" style="display:flex;justify-content:center;margin-top:34px">
+        <a class="btn btn-obrys" href="/cennik-masazu-poznan"><span set:html={ikony.cennik} />Zobacz pełny cennik</a>
+      </p>
+    </div>
+  </section>
+
+  <Cta />
+</Layout>

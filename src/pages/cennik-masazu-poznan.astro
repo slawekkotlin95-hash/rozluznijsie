@@ -1,0 +1,91 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../layouts/Layout.astro'
+import Naglowek2 from '../components/Naglowek2.astro'
+import Cta from '../components/Cta.astro'
+import { firma, masaze, sciezkaMasazu } from '../config'
+import { ikony } from '../data/ikony'
+import { zdjecia } from '../data/zdjecia'
+---
+
+<Layout
+  tytul="Cennik masażu Poznań | Rozluźnij Się Piątkowo"
+  opis="Cennik masaży w Poznaniu: relaksacyjny klasyczny Kobido sportowy tkanek głębokich bańka chińska i antycellulitowy. Ceny pojedyncze i pakiety."
+>
+  <Naglowek2
+    etykieta="Cennik"
+    tytul="Ceny zabiegów"
+    opis="Ceny mogą się różnić w zależności od czasu trwania zabiegu, techniki oraz indywidualnych ustaleń. Przy pakietach cena za pojedynczy masaż jest niższa."
+  />
+
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <div class="cennik">
+        {masaze.map((m) => (
+          <a class="cennik-wiersz" href={sciezkaMasazu(m.slug)}>
+            <span class="cennik-nazwa">{m.nazwa}</span>
+            <p class="cennik-ceny">{m.ceny.map((c) => <span class={c.startsWith('Pakiet') ? 'cennik-pakiet' : undefined}>{c}</span>)}</p>
+          </a>
+        ))}
+      </div>
+
+      <div class="uwaga-cennik">
+        <p>
+          <strong>Ceny mogą się zmieniać.</strong> Najbardziej aktualny cennik i wolne terminy
+          zawsze widać w Booksy, tam też najwygodniej zarezerwujesz wizytę.
+        </p>
+        <a class="btn btn-zielony" href={firma.booksy} target="_blank" rel="noopener noreferrer"><span set:html={ikony.kalendarz} />Sprawdź w Booksy</a>
+      </div>
+
+      <div class="proza tresc-waska" style="margin-top:40px">
+        <p>
+          Pakiet kupujesz raz i wykorzystujesz w dogodnych terminach. To najtańszy sposób
+          na regularną pracę z ciałem, a przy napięciach z pracy siedzącej
+          <strong> regularność znaczy więcej niż długość pojedynczego zabiegu</strong>.
+        </p>
+        <p>
+          Szukasz prezentu? Sprawdź <a href="/vouchery">vouchery podarunkowe</a>.
+          Pierwszy raz u nas? Zajrzyj na <a href="/pierwsza-wizyta">stronę pierwszej wizyty</a>.
+        </p>
+      </div>
+
+      <div class="cennik-dojazd">
+        <figure class="cennik-dojazd-foto">
+          <Image
+            src={zdjecia.dojazdAuto}
+            alt="Masażysta ze sprzętem przy aucie gabinetu Rozluźnij Się, masaż z dojazdem w Poznaniu"
+            widths={[420, 760]}
+            width={760}
+            quality={72}
+            sizes="(max-width: 900px) 92vw, 32vw"
+            loading="lazy"
+          />
+        </figure>
+
+        <div>
+          <p class="etykieta">Masaż z dojazdem</p>
+          <h2>Cenę ustalamy indywidualnie</h2>
+          <p>
+            Przy dojeździe do cennika gabinetowego dochodzi jeszcze sam dojazd, a ten wygląda
+            inaczej na Piątkowie, a inaczej na Grunwaldzie. Zamiast wpisywać tu widełki,
+            <strong> podajemy konkretną kwotę przed rezerwacją</strong>. Wystarczy telefon albo
+            wiadomość.
+          </p>
+
+          <ul class="lista-cech lista-cech-zwarta">
+            <li>Dzielnica i odległość od gabinetu na Piątkowie</li>
+            <li>Rodzaj oraz długość zabiegu</li>
+            <li>Liczba osób masowanych pod jednym adresem</li>
+          </ul>
+
+          <div class="duo-akcje">
+            <a class="btn btn-glowny" href={firma.telefonHref}><span set:html={ikony.telefon} />Zadzwoń: {firma.telefon}</a>
+            <a class="btn btn-obrys" href="/dojazd"><span set:html={ikony.samochod} />Jak działa dojazd</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+</Layout>

@@ -1,0 +1,47 @@
+---
+import { Image } from 'astro:assets'
+import type { Blok } from '../data/tresc'
+import { wyroznij } from '../data/wyroznienia'
+
+interface Props {
+  sekcje: { tytul?: string; bloki: Blok[] }[]
+  /** Zbiór dzielony między komponentami na jednej stronie, żeby fraza łapała się raz. */
+  uzyte?: Set<string>
+  /** Zdjęcie wpuszczane w środek tekstu, a nie doklejane na końcu. */
+  zdjecie?: ImageMetadata
+  zdjecieAlt?: string
+}
+
+const { sekcje, uzyte = new Set<string>(), zdjecie, zdjecieAlt = '' } = Astro.props
+const biezacy = Astro.url.pathname.replace(/\/$/, '') || '/'
+
+// Zdjęcie ląduje mniej więcej w połowie materiału, po całej sekcji.
+const poSekcji = zdjecie ? Math.max(0, Math.floor(sekcje.length / 2) - 1) : -1
+---
+
+{sekcje.map((s, i) => (
+  <>
+    <div class="blok-tresci">
+      {s.tytul && <h2 class="tytul-tresci">{s.tytul}</h2>}
+      <div class="proza">
+        {s.bloki.map((b) => (
+          <p class={b.tag === 'li' ? 'punkt' : undefined} set:html={wyroznij(b.tekst, uzyte, biezacy)} />
+        ))}
+      </div>
+    </div>
+
+    {i === poSekcji && zdjecie && (
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecie}
+          alt={zdjecieAlt}
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+      </figure>
+    )}
+  </>
+))}

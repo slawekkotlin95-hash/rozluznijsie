@@ -1,0 +1,237 @@
+{
+  "framework": "astro",
+  "buildCommand": "astro build",
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/nicole-stokowska",
+      "destination": "/o-nas/nicole-stokowska",
+      "permanent": true
+    },
+    {
+      "source": "/kamil-jedrzejewski",
+      "destination": "/o-nas/kamil-jedrzejewski",
+      "permanent": true
+    },
+    {
+      "source": "/masaze/relaksacyjny-poznan",
+      "destination": "/masaz-relaksacyjny-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-klasyczny-poznan",
+      "destination": "/masaze/klasyczny-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-kobido-poznan",
+      "destination": "/masaze/kobido-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-sportowy-poznan",
+      "destination": "/masaze/sportowy-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-tkanek-glebokich-poznan",
+      "destination": "/masaze/tkanek-glebokich-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-banka-chinska-poznan",
+      "destination": "/masaze/banka-chinska-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-nog-poznan",
+      "destination": "/masaze/nog-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-glowy-i-obreczy-barkowej-poznan",
+      "destination": "/masaze/glowy-i-barki-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-antycellulitowy-poznan",
+      "destination": "/masaze/antycellulitowy-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-dloni-poznan-stacjonarnie-z-dojazdem",
+      "destination": "/masaze/dloni-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/cennik",
+      "destination": "/cennik-masazu-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/voucher-podarunkowy-na-masaz-poznan",
+      "destination": "/vouchery/podarunkowy",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-poznan",
+      "destination": "/dojazd",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-dla-firm-poznan",
+      "destination": "/dla-firm",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-biurowy-poznan",
+      "destination": "/dla-firm/masaz-biurowy-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/baza-wiedzy",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/najczestsze-pytania",
+      "destination": "/faq",
+      "permanent": true
+    },
+    {
+      "source": "/regulamin-salonu",
+      "destination": "/regulamin",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-ogrody-poznan",
+      "destination": "/dojazd/ogrody-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-grunwald-poznan",
+      "destination": "/dojazd/grunwald-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-jezyce-poznan",
+      "destination": "/dojazd/jezyce-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-winogrady-poznan",
+      "destination": "/dojazd/winogrady-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-winiary-poznan",
+      "destination": "/dojazd/winiary-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-podolany-poznan",
+      "destination": "/dojazd/podolany-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-solacz-poznan",
+      "destination": "/dojazd/solacz-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-poznan-piatkowo",
+      "destination": "/dojazd/piatkowo-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-dla-seniora-poznan-dojazd",
+      "destination": "/dojazd/dla-seniora-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-z-dojazdem-relaks-w-twoim-domu-poznan",
+      "destination": "/dojazd/w-twoim-domu-poznan",
+      "permanent": true
+    },
+    {
+      "source": "/na-co-zwrocic-uwage-przy-wyborze-masazu",
+      "destination": "/blog/jak-wybrac-masaz",
+      "permanent": true
+    },
+    {
+      "source": "/ile-kosztuje-masaz-w-poznaniu",
+      "destination": "/blog/ile-kosztuje-masaz",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-kobido-up-dlaczego-tak-popularny",
+      "destination": "/blog/kobido-up",
+      "permanent": true
+    },
+    {
+      "source": "/bol-dolnego-odcinka-plecow",
+      "destination": "/blog/bol-dolnego-odcinka-plecow",
+      "permanent": true
+    },
+    {
+      "source": "/bol-glowy-i-szyi-masaz-poznan",
+      "destination": "/blog/bol-glowy-i-szyi",
+      "permanent": true
+    },
+    {
+      "source": "/bol-miedzy-lopatkami-masaz-poznan",
+      "destination": "/blog/bol-miedzy-lopatkami",
+      "permanent": true
+    },
+    {
+      "source": "/negatywne-skutki-pracy-siedzacej-masaz-poznan",
+      "destination": "/blog/praca-siedzaca",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-a-sen-poznan-winiary",
+      "destination": "/blog/masaz-a-sen",
+      "permanent": true
+    },
+    {
+      "source": "/wplyw-stresu-na-bol-a-rola-masazu-poznan",
+      "destination": "/blog/stres-a-bol",
+      "permanent": true
+    },
+    {
+      "source": "/przeciazenia-aktywnosc-fizyczna-masaz-poznan",
+      "destination": "/blog/przeciazenia-treningowe",
+      "permanent": true
+    },
+    {
+      "source": "/masaz-tkanek-glebokich-dla-kogo-poznan",
+      "destination": "/blog/tkanki-glebokie-dla-kogo",
+      "permanent": true
+    },
+    {
+      "source": "/dlaczego-nasze-cialo-napina-sie-jesienia-masaz-poznan",
+      "destination": "/blog/napiecie-jesienia",
+      "permanent": true
+    },
+    {
+      "source": "/ergonomia-pracy-masaz-poznan",
+      "destination": "/blog/ergonomia-pracy",
+      "permanent": true
+    },
+    {
+      "source": "/category/blog",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/category/dzielnica",
+      "destination": "/dojazd",
+      "permanent": true
+    },
+    {
+      "source": "/author/kamil",
+      "destination": "/o-nas/kamil-jedrzejewski",
+      "permanent": true
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+---
+import StronaTresci from '../../components/StronaTresci.astro'
+import { dzielnice } from '../../config'
+import { zrodloTresci } from '../../data/strony'
+import { zdjeciaDojazdu } from '../../data/zdjecia'
+
+const dodatkowe = [
+  { slug: 'dla-seniora', nazwa: 'Masaż dla seniora', lead: 'Delikatniejsza praca i dojazd pod dom.' },
+  { slug: 'w-twoim-domu', nazwa: 'Relaks w Twoim domu', lead: 'Jak wygląda masaż w domu i co warto przygotować.' },
+]
+
+export function getStaticPaths() {
+  const zDzielnic = dzielnice.map((d, i) => ({
+    params: { dzielnica: d.slug },
+    props: { nazwa: `Masaż z dojazdem ${d.nazwa}`, lead: `Dojeżdżamy na ${d.nazwa} z własnym stołem i sprzętem.`, kadr: i },
+  }))
+  const zDodatkowych = [
+    { params: { dzielnica: 'dla-seniora-poznan' }, props: { nazwa: 'Masaż dla seniora z dojazdem', lead: 'Delikatniejsza praca, dostosowane tempo i dojazd pod dom.', kadr: dzielnice.length } },
+    { params: { dzielnica: 'w-twoim-domu-poznan' }, props: { nazwa: 'Relaks w Twoim domu', lead: 'Masaż u Ciebie: co przygotować i jak to przebiega.', kadr: dzielnice.length + 1 } },
+  ]
+  return [...zDzielnic, ...zDodatkowych]
+}
+
+const { nazwa, lead, kadr } = Astro.props
+// Kadr z puli, żeby sąsiednie dzielnice nie miały tego samego zdjęcia.
+const foto = zdjeciaDojazdu[kadr % zdjeciaDojazdu.length]
+const { dzielnica } = Astro.params
+const stary = zrodloTresci[`/dojazd/${dzielnica}`]
+---
+
+<StronaTresci
+  tytul={`${nazwa} | gabinet masażu Rozluźnij Się Poznań`}
+  opis={`${nazwa} w Poznaniu. Masaż relaksacyjny klasyczny i tkanek głębokich u Ciebie w domu. Rezerwacja telefoniczna albo online.`}
+  etykieta="Masaż z dojazdem"
+  naglowek={nazwa}
+  lead={lead}
+  zrodlo={stary}
+  zdjecie={foto.zdjecie}
+  zdjecieAlt={foto.alt}
+/>

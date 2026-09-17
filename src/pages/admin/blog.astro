@@ -1,0 +1,148 @@
+---
+/** Lista wpisów: wyszukiwarka, filtr statusu i akcje na wpisie. */
+import Admin from '../../layouts/Admin.astro'
+---
+
+<Admin
+  tytul="Wpisy"
+  podtytul="Wszystko, co jest na blogu, razem ze szkicami i zaplanowanymi publikacjami."
+  sekcja="blog"
+>
+  <a slot="akcje" class="a-btn a-btn-glowny" href="/admin/wpis">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+    Nowy wpis
+  </a>
+
+  <div class="a-pasek-narzedzi">
+    <div class="a-szukaj">
+      <input type="search" id="szukaj" placeholder="Szukaj po tytule albo adresie…" aria-label="Szukaj wpisów" />
+    </div>
+    <select id="filtr" aria-label="Filtruj po statusie" style="height:38px;padding-inline:10px;border:1px solid var(--a-linia);border-radius:9px;background:#fff;font:inherit">
+      <option value="">Wszystkie statusy</option>
+      <option value="opublikowany">Opublikowane</option>
+      <option value="szkic">Szkice</option>
+      <option value="zaplanowany">Zaplanowane</option>
+    </select>
+  </div>
+
+  <div id="lista">Wczytuję…</div>
+
+  <dialog class="a-modal" id="modal-usun">
+    <form method="dialog" class="a-modal-tresc">
+      <h2>Usunąć ten wpis?</h2>
+      <p id="modal-tekst">Operacji nie da się cofnąć z poziomu panelu.</p>
+      <div class="a-modal-akcje">
+        <button class="a-btn a-btn-obrys" value="nie">Anuluj</button>
+        <button class="a-btn a-btn-blad" value="tak">Usuń wpis</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const dzis = new Date().toISOString().slice(0, 10)
+    const stan = (w) => (w.status === 'szkic' ? 'szkic' : w.data > dzis ? 'zaplanowany' : 'opublikowany')
+    const esc = (t) => String(t).replace(/[&<>"]/g, (z) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[z]))
+
+    let wpisy = []
+
+    function rysuj() {
+      const fraza = document.getElementById('szukaj').value.trim().toLowerCase()
+      const filtr = document.getElementById('filtr').value
+
+      const widoczne = wpisy.filter(
+        (w) =>
+          (!filtr || stan(w) === filtr) &&
+          (!fraza || w.tytul.toLowerCase().includes(fraza) || w.slug.includes(fraza))
+      )
+
+      document.getElementById('lista').innerHTML = widoczne.length
+        ? `<table class="a-tabela">
+            <thead><tr>
+              <th>Tytuł</th><th style="width:120px">Data</th><th style="width:120px">Status</th>
+              <th style="width:90px">Czytanie</th><th style="width:210px"></th>
+            </tr></thead>
+            <tbody>${widoczne
+              .map(
+                (w) => `<tr>
+                  <td>
+                    <a class="a-tabela-tytul" href="/admin/wpis?slug=${encodeURIComponent(w.slug)}">${esc(w.tytul)}</a>
+                    <span class="a-tabela-slug">/blog/${esc(w.slug)}</span>
+                  </td>
+                  <td>${w.data}</td>
+                  <td><span class="a-plakietka a-plakietka-${stan(w)}">${stan(w)}</span></td>
+                  <td>${w.minuty} min</td>
+                  <td>
+                    <div class="a-tabela-akcje">
+                      <a class="a-btn a-btn-obrys a-btn-maly" href="/admin/wpis?slug=${encodeURIComponent(w.slug)}">Edytuj</a>
+                      <a class="a-btn a-btn-obrys a-btn-maly" href="/blog/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener">Podgląd</a>
+                      <button class="a-btn a-btn-obrys a-btn-maly" data-kopiuj="${esc(w.slug)}">Duplikuj</button>
+                      <button class="a-btn a-btn-blad a-btn-maly" data-usun="${esc(w.slug)}" data-tytul="${esc(w.tytul)}">Usuń</button>
+                    </div>
+                  </td>
+                </tr>`
+              )
+              .join('')}</tbody>
+          </table>`
+        : '<p class="a-pusto">Nic nie pasuje do tych kryteriów.</p>'
+    }
+
+    async function wczytaj() {
+      try {
+        const odp = await window.api('/api/admin/wpisy')
+        wpisy = odp.wpisy.sort((a, b) => b.data.localeCompare(a.data))
+        rysuj()
+      } catch (e) {
+        document.getElementById('lista').innerHTML = `<p class="a-pusto">${e.message}</p>`
+      }
+    }
+
+    document.getElementById('szukaj').addEventListener('input', rysuj)
+    document.getElementById('filtr').addEventListener('change', rysuj)
+
+    document.getElementById('lista').addEventListener('click', async (e) => {
+      const usun = e.target.closest('[data-usun]')
+      const kopiuj = e.target.closest('[data-kopiuj]')
+
+      if (usun) {
+        const modal = document.getElementById('modal-usun')
+        document.getElementById('modal-tekst').textContent =
+          `Wpis „${usun.dataset.tytul}” zniknie z bloga po najbliższej przebudowie strony. Treść zostanie w historii repozytorium.`
+        modal.showModal()
+        modal.addEventListener(
+          'close',
+          async () => {
+            if (modal.returnValue !== 'tak') return
+            try {
+              await window.api('/api/admin/wpisy?slug=' + encodeURIComponent(usun.dataset.usun), { method: 'DELETE' })
+              window.toast('Wpis usunięty. Strona przebuduje się za chwilę.')
+              wczytaj()
+            } catch (err) {
+              window.toast(err.message, true)
+            }
+          },
+          { once: true }
+        )
+      }
+
+      if (kopiuj) {
+        try {
+          const { wpis } = await window.api('/api/admin/wpisy?slug=' + encodeURIComponent(kopiuj.dataset.kopiuj))
+          const kopia = {
+            ...wpis,
+            slug: wpis.slug + '-kopia',
+            tytul: wpis.tytul + ' (kopia)',
+            status: 'szkic',
+            data: new Date().toISOString().slice(0, 10),
+          }
+          await window.api('/api/admin/wpisy', { method: 'POST', dane: kopia })
+          window.toast('Utworzono kopię jako szkic.')
+          wczytaj()
+        } catch (err) {
+          window.toast(err.message, true)
+        }
+      }
+    })
+
+    wczytaj()
+  </script>
+</Admin>

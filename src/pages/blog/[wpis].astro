@@ -1,0 +1,122 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../../layouts/Layout.astro'
+import Tresc from '../../components/Tresc.astro'
+import Cta from '../../components/Cta.astro'
+import MetaWpisu from '../../components/MetaWpisu.astro'
+import { wpisy, wpisyOdNajnowszych } from '../../data/strony'
+import { sekcje } from '../../data/tresc'
+import { miniaturyWpisow } from '../../data/zdjecia'
+import TrescArtykulu from '../../components/TrescArtykulu.astro'
+import { artykuly } from '../../data/artykuly'
+
+export function getStaticPaths() {
+  // Wpisy z WordPressa i artykuły pisane od zera dzielą jedną podstronę.
+  // Poza nimi zostaje Kobido Up, które ma własny plik z bogatszym układem.
+  const slugiArtykulow = new Set(artykuly.map((a) => a.slug))
+  return wpisy
+    .filter((w) => !w.wlasny || slugiArtykulow.has(w.slug))
+    .map((w) => ({ params: { wpis: w.slug }, props: { wpis: w } }))
+}
+
+const { wpis } = Astro.props
+const artykul = artykuly.find((a) => a.slug === wpis.slug)
+const foto = miniaturyWpisow[wpis.slug]
+const inne = wpisyOdNajnowszych.filter((w) => w.slug !== wpis.slug).slice(0, 3)
+const uzyte = new Set<string>()
+
+const artykulSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: wpis.tytul,
+  description: wpis.lead,
+  inLanguage: 'pl-PL',
+  datePublished: wpis.data,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': `https://rozluznijsie.pl/blog/${wpis.slug}` },
+  author: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+  publisher: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+}
+---
+
+<Layout tytul={artykul?.metaTytul ? `${artykul.metaTytul} | Rozluźnij Się Poznań` : `${wpis.tytul} | masaż Poznań Rozluźnij Się`} opis={wpis.lead}>
+  <section class="sekcja sekcja-biala">
+    <div class="kontener">
+      <header class="glowka-wpisu">
+        <a class="pasek-powrot" href="/blog">← Wszystkie wpisy</a>
+        <h1>{wpis.tytul}</h1>
+        <p class="glowka-lead">{wpis.lead}</p>
+        <MetaWpisu wpis={wpis} />
+      </header>
+
+      {artykul
+        ? <TrescArtykulu artykul={artykul} />
+        : <Tresc sekcje={sekcje(wpis.zrodlo)} uzyte={uzyte} zdjecieAlt={`${wpis.tytul}, gabinet masażu Rozluźnij Się w Poznaniu`} />}
+    </div>
+  </section>
+
+  <section class="sekcja sekcja-jasna">
+    <div class="kontener">
+      <p class="etykieta">Czytaj dalej</p>
+      <h2 class="tytul-sekcji">Inne wpisy</h2>
+      <div class="karty">
+        {inne.map((w) => (
+          <a class="karta" href={`/blog/${w.slug}`}>
+            <div class="karta-foto">
+              <Image src={miniaturyWpisow[w.slug]} alt={w.tytul} widths={[380, 640]} width={640} quality={70} sizes="(max-width: 900px) 92vw, 30vw" loading="lazy" />
+            </div>
+            <div class="karta-tresc">
+              <MetaWpisu wpis={w} />
+              <h3 class="karta-tytul">{w.tytul}</h3>
+              <p class="karta-cena">{w.lead}</p>
+              <span class="karta-wiecej">Czytaj →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+
+  <script type="application/ld+json" set:html={JSON.stringify(artykulSchema)} />
+</Layout>
+
+<style>
+  /* Nagłówek wpisu: tytuł stoi nad treścią i trzyma się lewej krawędzi. */
+  .glowka-wpisu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 38px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--linia);
+  }
+
+  .glowka-wpisu h1 {
+    margin: 0;
+    max-width: 24ch;
+    font-size: clamp(28px, 3.2vw, 42px);
+    color: var(--zielen-ciemna);
+  }
+
+  .glowka-lead {
+    margin: 0;
+    max-width: 68ch;
+    font-size: 17.5px;
+    line-height: 1.65;
+    text-align: left;
+    color: var(--szary);
+  }
+
+  .pasek-powrot {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--zielen);
+    transition: color 0.18s ease;
+  }
+
+  .pasek-powrot:hover { color: var(--terakota-ciemna); }
+
+  .karta-tresc :global(.meta-wpisu) { margin-bottom: 10px; }
+</style>

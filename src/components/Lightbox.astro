@@ -1,0 +1,53 @@
+---
+/**
+ * Powiększanie zdjęć na całym serwisie. Bez biblioteki: natywny <dialog>
+ * daje backdrop, Escape i pułapkę na fokus za darmo.
+ *
+ * Łapie każde zdjęcie w <figure>, poza wycinanką Kamila w ramce doboru
+ * (to grafika bez tła, powiększanie jej nie ma sensu).
+ */
+---
+
+<dialog class="lightbox" id="lightbox" aria-label="Powiększone zdjęcie">
+  <button type="button" class="lightbox-zamknij" aria-label="Zamknij powiększenie">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+  </button>
+  <img alt="" />
+</dialog>
+
+<script>
+  const okno = document.getElementById('lightbox') as HTMLDialogElement | null
+  const duze = okno?.querySelector('img') as HTMLImageElement | null
+
+  if (okno && duze) {
+    // Astro generuje srcset z kilkoma szerokościami: bierzemy najszerszą,
+    // bo w powiększeniu zdjęcie zajmuje prawie cały ekran.
+    const najwiekszy = (el: HTMLImageElement) => {
+      const warianty = (el.srcset || '')
+        .split(',')
+        .map((w) => w.trim().split(/\s+/))
+        .filter((w) => w[0])
+        .sort((a, b) => parseInt(b[1] || '0') - parseInt(a[1] || '0'))
+      return warianty[0]?.[0] || el.currentSrc || el.src
+    }
+
+    document
+      .querySelectorAll<HTMLImageElement>('figure:not(.ramka-dobor-foto) img')
+      .forEach((el) => {
+        el.classList.add('do-powiekszenia')
+        el.addEventListener('click', () => {
+          duze.src = najwiekszy(el)
+          duze.alt = el.alt
+          okno.showModal()
+        })
+      })
+
+    // Klik w tło albo w krzyżyk zamyka, klik w samo zdjęcie nie.
+    okno.addEventListener('click', (e) => {
+      if (e.target !== duze) okno.close()
+    })
+    okno.addEventListener('close', () => {
+      duze.removeAttribute('src')
+    })
+  }
+</script>

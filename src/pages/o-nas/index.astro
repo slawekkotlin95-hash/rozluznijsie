@@ -1,0 +1,34 @@
+---
+import { Image } from 'astro:assets'
+import StronaTresci from '../../components/StronaTresci.astro'
+import { zespol } from '../../config'
+import { zdjecia } from '../../data/zdjecia'
+
+const foto: Record<string, ImageMetadata> = {
+  'nicole-stokowska': zdjecia.nicole,
+  'kamil-jedrzejewski': zdjecia.kamil,
+}
+---
+
+<StronaTresci
+  tytul="Poznaj nas | gabinet masażu Poznań Rozluźnij Się"
+  opis="Poznaj gabinet Rozluźnij Się w Poznaniu i osoby które w nim pracują: Nicole Stokowska i Kamil Jędrzejewski. Masaż na Piątkowie."
+  etykieta="O nas"
+  naglowek="Poznaj nas"
+  lead="Dwie osoby, dwa różne podejścia i jeden gabinet, w którym nikt się nie spieszy."
+  zrodlo="o-nas"
+>
+  <div class="karty" style="margin-top:44px">
+    {zespol.map((o) => (
+      <a class="karta" href={`/o-nas/${o.slug}`}>
+        <div class="karta-foto">
+          <Image src={foto[o.slug]} alt={o.imie} widths={[380, 640]} width={640} quality={72} sizes="(max-width: 900px) 92vw, 44vw" loading="lazy" />
+        </div>
+        <div class="karta-tresc">
+          <h3 class="karta-tytul">{o.imie}</h3>
+          <span class="karta-wiecej">Poznaj mnie →</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</StronaTresci>

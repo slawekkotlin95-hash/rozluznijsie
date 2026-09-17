@@ -1,0 +1,31 @@
+---
+/**
+ * Nagłówek podstrony bez zdjęcia. Zdjęcia zostają w hero na stronie głównej
+ * oraz w treści artykułów, tutaj liczy się sam tytuł i wprowadzenie.
+ */
+interface Props {
+  etykieta?: string
+  tytul: string
+  opis?: string
+}
+
+const { etykieta, tytul, opis } = Astro.props
+---
+
+<section class="naglowek-strony">
+  <div class="kontener">
+    {etykieta && <p class="etykieta">{etykieta}</p>}
+    <h1>{tytul}</h1>
+
+    <div class="separator" aria-hidden="true">
+      <span class="separator-linia"></span>
+      <svg class="separator-znak" viewBox="0 0 24 24">
+        <path d="M12 2c2.8 3.2 4.2 6 4.2 8.4 0 2.6-1.9 4.6-4.2 4.6s-4.2-2-4.2-4.6C7.8 8 9.2 5.2 12 2Z" />
+        <path d="M12 15v7" />
+      </svg>
+      <span class="separator-linia"></span>
+    </div>
+
+    {opis && <p class="naglowek-strony-opis">{opis}</p>}
+  </div>
+</section>

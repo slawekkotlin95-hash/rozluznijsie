@@ -1,0 +1,51 @@
+---
+/**
+ * Renderuje artykuł zapisany w blokach (`src/data/artykuly.ts`).
+ * Korzysta z klas, które już są w serwisie: proza, tytul-tresci, punkt,
+ * kadr-w-tekscie. Nowa jest tylko ramka wyróżniająca.
+ */
+import { Image } from 'astro:assets'
+import type { Artykul } from '../data/artykuly'
+import { zdjecieArtykulu } from '../data/zdjecia'
+
+interface Props {
+  artykul: Artykul
+}
+
+const { artykul } = Astro.props
+---
+
+<div class="artykul">
+  {artykul.bloki.map((blok) => {
+    if (blok.typ === 'h2') return <h2 class="tytul-tresci">{blok.tekst}</h2>
+    if (blok.typ === 'h3') return <h3 class="tytul-podsekcji">{blok.tekst}</h3>
+    if (blok.typ === 'p') return <div class="proza"><p set:html={blok.tekst} /></div>
+    if (blok.typ === 'lista')
+      return (
+        <ul class="lista-artykulu">
+          {blok.punkty.map((punkt) => <li set:html={punkt} />)}
+        </ul>
+      )
+    if (blok.typ === 'ramka')
+      return (
+        <aside class="ramka-wyrozniona">
+          <p class="ramka-wyrozniona-tytul">{blok.tytul}</p>
+          <p set:html={blok.tekst} />
+        </aside>
+      )
+    return (
+      <figure class="kadr kadr-szeroki kadr-w-tekscie">
+        <Image
+          src={zdjecieArtykulu(blok.klucz)!}
+          alt={blok.alt}
+          widths={[700, 1200]}
+          width={1200}
+          quality={74}
+          sizes="(max-width: 1240px) 92vw, 1180px"
+          loading="lazy"
+        />
+        {blok.podpis && <figcaption>{blok.podpis}</figcaption>}
+      </figure>
+    )
+  })}
+</div>
