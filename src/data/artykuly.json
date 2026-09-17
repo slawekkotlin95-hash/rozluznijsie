@@ -1,5 +1,20 @@
 [
   {
+    "slug": "test-panelu",
+    "tytul": "Test panelu",
+    "lead": "Wpis testowy zalozony przez panel, do skasowania.",
+    "data": "2026-09-17",
+    "minuty": 1,
+    "miniatura": "gabinet",
+    "status": "szkic",
+    "bloki": [
+      {
+        "typ": "p",
+        "tekst": "Sprawdzenie zapisu z panelu do repozytorium."
+      }
+    ]
+  },
+  {
     "slug": "jak-sie-ubrac-na-masaz",
     "tytul": "Jak się ubrać na masaż",
     "metaTytul": "Jak się ubrać na masaż? Praktyczny poradnik przed wizytą",
