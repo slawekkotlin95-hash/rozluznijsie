@@ -1,4 +1,4 @@
-import { artykulyWszystkie } from './artykuly'
+import { artykuly } from './artykuly'
 
 /**
  * Zdjęcia przypisane do podstron. Astro wymaga statycznych importów,
@@ -136,28 +136,9 @@ export const zdjeciaArtykulow: Record<string, ImageMetadata> = {
   dloni,
 }
 
-/**
- * Zdjęcia wgrane przez panel /admin. Nie mają ręcznych importów, więc bierzemy
- * je globem — nowy plik w src/assets działa od razu po przebudowaniu strony.
- */
-const wgrane = import.meta.glob('../assets/**/*.{jpg,jpeg,png,webp,avif}', {
-  eager: true,
-  import: 'default',
-}) as Record<string, ImageMetadata>
-
-/**
- * Zdjęcie artykułu po kluczu. Najpierw nazwane wpisy z mapy wyżej, potem
- * nazwa pliku, tak jak zapisuje ją panel (np. „stol-do-masazu.jpg”).
- */
-export function zdjecieArtykulu(klucz: string): ImageMetadata | undefined {
-  if (zdjeciaArtykulow[klucz]) return zdjeciaArtykulow[klucz]
-  const trafienie = Object.entries(wgrane).find(([sciezka]) => sciezka.endsWith('/' + klucz))
-  return trafienie?.[1]
-}
-
 /** Miniatury wpisów bloga. Klucz to slug wpisu na nowej stronie. */
 export const miniaturyWpisow: Record<string, ImageMetadata> = {
-  ...Object.fromEntries(artykulyWszystkie.map((a) => [a.slug, zdjeciaArtykulow[a.miniatura]])),
+  ...Object.fromEntries(artykuly.map((a) => [a.slug, zdjeciaArtykulow[a.miniatura]])),
   'masaz-kobido-up-poznan': kobido,
   'jak-wybrac-masaz': gabinet3,
   'ile-kosztuje-masaz': voucher,
