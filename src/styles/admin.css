@@ -336,6 +336,11 @@ dialog.a-modal::backdrop { background: rgba(19, 53, 40, 0.5); }
   .a-gora { padding: 12px 16px; }
   .a-pole-rzad { grid-template-columns: 1fr; }
   .a-tabela-akcje { flex-wrap: wrap; justify-content: flex-start; }
+  /* Na telefonie w górnym pasku zostają tylko menu i przyciski zapisu. */
+  .a-okruszki, .a-stan-zapisu { display: none; }
+  .a-gora-akcje { margin-left: auto; gap: 6px; }
+  .a-gora-akcje .a-btn { padding-inline: 12px; }
+  .a-tabela { display: block; overflow-x: auto; }
 }
 
 /* ------------------------- dodatki edytora ---------------------------- */

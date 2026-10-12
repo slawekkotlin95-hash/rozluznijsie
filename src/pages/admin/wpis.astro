@@ -496,13 +496,18 @@ import { zespol } from '../../config'
       const fraza = el('fraza').value.trim().toLowerCase()
       if (!fraza) uwagi.push(['Wpisz frazę kluczową, a panel podpowie, gdzie jej brakuje', false])
       else {
-        const ma = (t) => czysty(t).toLowerCase().includes(fraza)
+        // Po rdzeniach słów, bo polski odmienia: „masaż pleców” ma pasować do „masażu pleców”.
+        const rdzenie = fraza.split(/\s+/).filter((w) => w.length > 2).map((w) => w.slice(0, Math.max(4, w.length - 2)))
+        const ma = (t) => {
+          const slowa = czysty(t).toLowerCase().split(/[^\p{L}\d]+/u)
+          return rdzenie.every((r) => slowa.some((s) => s.startsWith(r)))
+        }
         const pierwszyAkapit = bloki.find((b) => b.typ === 'p')?.tekst || ''
         if (!ma(metaTytul || tytul)) uwagi.push(['Fraza nie występuje w tytule', false])
         if (!ma(opis)) uwagi.push(['Fraza nie występuje w opisie w Google', false])
         if (!ma(pierwszyAkapit)) uwagi.push(['Fraza nie występuje w pierwszym akapicie', false])
         if (!naglowki.some((b) => ma(b.tekst))) uwagi.push(['Fraza nie występuje w żadnym nagłówku', false])
-        if (!slug.includes(slugify(fraza))) uwagi.push(['Fraza nie występuje w adresie wpisu', false])
+        if (!rdzenie.every((r) => slug.includes(slugify(r)))) uwagi.push(['Fraza nie występuje w adresie wpisu', false])
       }
       if (el('noindex').checked) uwagi.push(['Wpis jest ukryty przed Google', false])
       if (!uwagi.length) uwagi.push(['Wszystko na miejscu', true])
