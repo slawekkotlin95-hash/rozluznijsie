@@ -1,0 +1,198 @@
+---
+/** Biblioteka zdjęć: wgrywanie, opisy i usuwanie plików z `src/assets`. */
+import Admin from '../../layouts/Admin.astro'
+---
+
+<Admin
+  tytul="Media"
+  podtytul="Zdjęcia, z których korzystają wpisy i podstrony. Opis alternatywny ma znaczenie dla Google i dla osób korzystających z czytników ekranu."
+  sekcja="media"
+>
+  <div slot="akcje">
+    <label class="a-btn a-btn-glowny" for="plik" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      Wgraj zdjęcie
+    </label>
+    <input type="file" id="plik" accept="image/jpeg,image/png,image/webp,image/avif" multiple hidden />
+  </div>
+
+  <div class="a-pasek-narzedzi">
+    <div class="a-szukaj">
+      <input type="search" id="szukaj" placeholder="Szukaj po nazwie pliku albo opisie…" aria-label="Szukaj zdjęć" />
+    </div>
+    <select id="filtr" aria-label="Filtruj" style="height:38px;padding-inline:10px;border:1px solid var(--a-linia);border-radius:9px;background:#fff;font:inherit">
+      <option value="">Wszystkie pliki</option>
+      <option value="bez-altu">Bez opisu alternatywnego</option>
+      <option value="jpg">JPG</option>
+      <option value="png">PNG</option>
+      <option value="webp">WebP</option>
+    </select>
+    <span class="a-stan-zapisu" id="licznik"></span>
+  </div>
+
+  <div id="galeria">Wczytuję…</div>
+
+  <dialog class="a-modal" id="modal-plik">
+    <div class="a-modal-tresc">
+      <h2 id="mp-nazwa">Zdjęcie</h2>
+      <div id="mp-podglad" role="img" aria-label="Podgląd" style="width:100%;height:190px;border-radius:10px;border:1px solid var(--a-linia);background:#eef1ef center/cover no-repeat;margin-bottom:16px"></div>
+
+      <div class="a-pole">
+        <label for="mp-alt">Opis alternatywny (alt)</label>
+        <input type="text" id="mp-alt" placeholder="Co widać na zdjęciu, np. masaż pleców w gabinecie" />
+        <small>Opisuj obraz, nie upychaj słów kluczowych.</small>
+      </div>
+      <div class="a-pole">
+        <label for="mp-tytul">Tytuł</label>
+        <input type="text" id="mp-tytul" />
+      </div>
+      <div class="a-pole">
+        <label for="mp-podpis">Podpis pod zdjęciem</label>
+        <input type="text" id="mp-podpis" />
+      </div>
+      <div class="a-pole">
+        <label for="mp-opis">Opis wewnętrzny</label>
+        <textarea id="mp-opis" rows="2" placeholder="Notatka dla Was, nie trafia na stronę."></textarea>
+      </div>
+
+      <p class="a-stan-zapisu" id="mp-meta"></p>
+
+      <div class="a-modal-akcje" style="margin-top:14px">
+        <button class="a-btn a-btn-blad" id="mp-usun" type="button">Usuń plik</button>
+        <button class="a-btn a-btn-obrys" id="mp-anuluj" type="button">Zamknij</button>
+        <button class="a-btn a-btn-glowny" id="mp-zapisz" type="button">Zapisz opisy</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (z) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[z]))
+    const el = (id) => document.getElementById(id)
+    let media = []
+    let biezacy = null
+
+    const rozmiar = (b) => (b > 1024 * 1024 ? (b / 1024 / 1024).toFixed(1) + ' MB' : Math.round(b / 1024) + ' KB')
+
+    function rysuj() {
+      const fraza = el('szukaj').value.trim().toLowerCase()
+      const filtr = el('filtr').value
+
+      const widoczne = media.filter((m) => {
+        if (filtr === 'bez-altu' && m.alt) return false
+        if (['jpg', 'png', 'webp'].includes(filtr) && m.typ !== filtr && !(filtr === 'jpg' && m.typ === 'jpeg')) return false
+        if (!fraza) return true
+        return m.plik.toLowerCase().includes(fraza) || (m.alt || '').toLowerCase().includes(fraza)
+      })
+
+      el('licznik').textContent = `${widoczne.length} z ${media.length} plików · ${media.filter((m) => !m.alt).length} bez altu`
+
+      el('galeria').innerHTML = widoczne.length
+        ? `<div class="a-media">${widoczne
+            .map(
+              (m) => `<button type="button" class="a-media-kafel" data-plik="${esc(m.plik)}">
+                <img src="/api/admin/podglad?plik=${encodeURIComponent(m.plik)}" alt="" loading="lazy" />
+                <div class="a-media-opis">
+                  <strong>${esc(m.plik)}</strong>
+                  <small>${rozmiar(m.rozmiar)} · ${m.alt ? esc(m.alt.slice(0, 40)) : '<span class="a-media-brak-alt">brak altu</span>'}</small>
+                </div>
+              </button>`
+            )
+            .join('')}</div>`
+        : '<p class="a-pusto">Nic nie pasuje do tych kryteriów.</p>'
+    }
+
+    async function wczytaj() {
+      try {
+        const odp = await window.api('/api/admin/media')
+        media = odp.media
+        rysuj()
+      } catch (e) {
+        el('galeria').innerHTML = `<p class="a-pusto">${e.message}</p>`
+      }
+    }
+
+    el('szukaj').addEventListener('input', rysuj)
+    el('filtr').addEventListener('change', rysuj)
+
+    el('galeria').addEventListener('click', (e) => {
+      const kafel = e.target.closest('[data-plik]')
+      if (!kafel) return
+
+      biezacy = media.find((m) => m.plik === kafel.dataset.plik)
+      el('mp-nazwa').textContent = biezacy.plik
+      el('mp-podglad').style.backgroundImage = `url(/api/admin/podglad?plik=${encodeURIComponent(biezacy.plik)})`
+      el('mp-alt').value = biezacy.alt || ''
+      el('mp-tytul').value = biezacy.tytul || ''
+      el('mp-podpis').value = biezacy.podpis || ''
+      el('mp-opis').value = biezacy.opis || ''
+      el('mp-meta').textContent = `${biezacy.typ.toUpperCase()} · ${rozmiar(biezacy.rozmiar)} · src/assets/${biezacy.plik}`
+      el('modal-plik').showModal()
+    })
+
+    el('mp-anuluj').addEventListener('click', () => el('modal-plik').close())
+
+    el('mp-zapisz').addEventListener('click', async () => {
+      try {
+        await window.api('/api/admin/media', {
+          method: 'PUT',
+          dane: {
+            plik: biezacy.plik,
+            alt: el('mp-alt').value,
+            tytul: el('mp-tytul').value,
+            podpis: el('mp-podpis').value,
+            opis: el('mp-opis').value,
+          },
+        })
+        window.toast('Opisy zapisane.')
+        el('modal-plik').close()
+        wczytaj()
+      } catch (e) {
+        window.toast(e.message, true)
+      }
+    })
+
+    el('mp-usun').addEventListener('click', async () => {
+      if (!confirm(`Usunąć plik ${biezacy.plik}? Jeśli korzysta z niego jakiś wpis, zdjęcie zniknie ze strony.`)) return
+      try {
+        await window.api('/api/admin/media?plik=' + encodeURIComponent(biezacy.plik), { method: 'DELETE' })
+        window.toast('Plik usunięty.')
+        el('modal-plik').close()
+        wczytaj()
+      } catch (e) {
+        window.toast(e.message, true)
+      }
+    })
+
+    // Wgrywanie: plik idzie base64 do funkcji, ta commituje go do repozytorium.
+    el('plik').addEventListener('change', async (e) => {
+      const pliki = [...e.target.files]
+      e.target.value = ''
+
+      for (const plik of pliki) {
+        if (plik.size > 8 * 1024 * 1024) {
+          window.toast(`${plik.name}: plik większy niż 8 MB.`, true)
+          continue
+        }
+        window.toast(`Wgrywam ${plik.name}…`)
+        try {
+          const dane = await new Promise((ok, zle) => {
+            const czytnik = new FileReader()
+            czytnik.onload = () => ok(String(czytnik.result).split(',')[1])
+            czytnik.onerror = zle
+            czytnik.readAsDataURL(plik)
+          })
+          const wynik = await window.api('/api/admin/media', {
+            method: 'POST',
+            dane: { nazwa: plik.name, typMime: plik.type, dane },
+          })
+          window.toast(`Wgrano jako ${wynik.plik}.`)
+        } catch (err) {
+          window.toast(`${plik.name}: ${err.message}`, true)
+        }
+      }
+      wczytaj()
+    })
+
+    wczytaj()
+  </script>
+</Admin>

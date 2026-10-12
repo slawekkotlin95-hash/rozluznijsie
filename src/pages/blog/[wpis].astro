@@ -1,44 +1,68 @@
 ---
-import { Image } from 'astro:assets'
+import { Image, getImage } from 'astro:assets'
 import Layout from '../../layouts/Layout.astro'
-import Tresc from '../../components/Tresc.astro'
 import Cta from '../../components/Cta.astro'
 import MetaWpisu from '../../components/MetaWpisu.astro'
-import { wpisy, wpisyOdNajnowszych } from '../../data/strony'
-import { sekcje } from '../../data/tresc'
-import { miniaturyWpisow } from '../../data/zdjecia'
 import TrescArtykulu from '../../components/TrescArtykulu.astro'
+import { wpisy, wpisyOdNajnowszych } from '../../data/strony'
+import { miniaturyWpisow } from '../../data/zdjecia'
 import { artykuly } from '../../data/artykuly'
+import { zespol } from '../../config'
 
 export function getStaticPaths() {
-  // Wpisy z WordPressa i artykuły pisane od zera dzielą jedną podstronę.
-  // Poza nimi zostaje Kobido Up, które ma własny plik z bogatszym układem.
-  const slugiArtykulow = new Set(artykuly.map((a) => a.slug))
-  return wpisy
-    .filter((w) => !w.wlasny || slugiArtykulow.has(w.slug))
-    .map((w) => ({ params: { wpis: w.slug }, props: { wpis: w } }))
+  // Wszystkie wpisy z panelu. Kobido Up ma własny plik z bogatszym układem.
+  return artykuly.map((artykul) => ({
+    params: { wpis: artykul.slug },
+    props: { artykul, wpis: wpisy.find((w) => w.slug === artykul.slug)! },
+  }))
 }
 
-const { wpis } = Astro.props
-const artykul = artykuly.find((a) => a.slug === wpis.slug)
-const foto = miniaturyWpisow[wpis.slug]
+const { artykul, wpis } = Astro.props
 const inne = wpisyOdNajnowszych.filter((w) => w.slug !== wpis.slug).slice(0, 3)
-const uzyte = new Set<string>()
+
+const BAZA = 'https://rozluznijsie.pl'
+const adres = `${BAZA}/blog/${artykul.slug}`
+const opis = artykul.metaOpis || artykul.lead
+// Obrazek do udostępnień i do Google w formacie 1200 × 630, z miniatury wpisu.
+const og = await getImage({ src: miniaturyWpisow[artykul.slug], width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 78 })
+const autor = zespol.find((o) => o.slug === artykul.autor)
 
 const artykulSchema = {
   '@context': 'https://schema.org',
-  '@type': 'BlogPosting',
-  headline: wpis.tytul,
-  description: wpis.lead,
-  inLanguage: 'pl-PL',
-  datePublished: wpis.data,
-  mainEntityOfPage: { '@type': 'WebPage', '@id': `https://rozluznijsie.pl/blog/${wpis.slug}` },
-  author: { '@id': 'https://rozluznijsie.pl/#gabinet' },
-  publisher: { '@id': 'https://rozluznijsie.pl/#gabinet' },
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      headline: artykul.metaTytul || artykul.tytul,
+      description: opis,
+      image: new URL(og.src, BAZA).href,
+      inLanguage: 'pl-PL',
+      datePublished: artykul.data,
+      dateModified: artykul.aktualizacja || artykul.data,
+      wordCount: artykul.minuty * 200,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': adres },
+      author: autor
+        ? { '@type': 'Person', name: autor.imie, jobTitle: 'technik masażysta', url: `${BAZA}/o-nas/${autor.slug}`, worksFor: { '@id': `${BAZA}/#gabinet` } }
+        : { '@id': `${BAZA}/#gabinet` },
+      publisher: { '@id': `${BAZA}/#gabinet` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Strona główna', item: BAZA },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${BAZA}/blog` },
+        { '@type': 'ListItem', position: 3, name: artykul.tytul, item: adres },
+      ],
+    },
+  ],
 }
 ---
 
-<Layout tytul={artykul?.metaTytul ? `${artykul.metaTytul} | Rozluźnij Się Poznań` : `${wpis.tytul} | masaż Poznań Rozluźnij Się`} opis={wpis.lead}>
+<Layout
+  tytul={artykul.metaTytul ? `${artykul.metaTytul} | Rozluźnij Się Poznań` : `${artykul.tytul} | masaż Poznań Rozluźnij Się`}
+  opis={opis}
+  obraz={og.src}
+  noindex={artykul.noindex}
+>
   <section class="sekcja sekcja-biala">
     <div class="kontener">
       <header class="glowka-wpisu">
@@ -46,11 +70,10 @@ const artykulSchema = {
         <h1>{wpis.tytul}</h1>
         <p class="glowka-lead">{wpis.lead}</p>
         <MetaWpisu wpis={wpis} />
+        {autor && <p class="podpis-autora">Autor: <a href={`/o-nas/${autor.slug}`}>{autor.imie}</a>, technik masażysta</p>}
       </header>
 
-      {artykul
-        ? <TrescArtykulu artykul={artykul} />
-        : <Tresc sekcje={sekcje(wpis.zrodlo)} uzyte={uzyte} zdjecieAlt={`${wpis.tytul}, gabinet masażu Rozluźnij Się w Poznaniu`} />}
+      <TrescArtykulu artykul={artykul} />
     </div>
   </section>
 
@@ -119,4 +142,8 @@ const artykulSchema = {
   .pasek-powrot:hover { color: var(--terakota-ciemna); }
 
   .karta-tresc :global(.meta-wpisu) { margin-bottom: 10px; }
+
+  .podpis-autora { margin: 0; font-size: 14px; color: var(--szary); }
+  .podpis-autora a { font-weight: 600; color: var(--zielen); }
+  .podpis-autora a:hover { color: var(--terakota-ciemna); }
 </style>

@@ -2,9 +2,15 @@ import type { APIRoute } from 'astro'
 import { masaze, dzielnice, zespol, sciezkaMasazu } from '../config'
 import { wpisy } from '../data/strony'
 import { miasta } from '../data/miasta'
+import { artykuly } from '../data/artykuly'
 
-/** Wpisy bloga mają własną datę publikacji, reszta dostaje datę builda. */
-const DATY_WPISOW: Record<string, string> = Object.fromEntries(wpisy.map((w) => [`/blog/${w.slug}`, w.data]))
+/** Wpisy bloga mają datę ostatniej zmiany albo publikacji, reszta dostaje datę builda. */
+const DATY_WPISOW: Record<string, string> = Object.fromEntries([
+  ...wpisy.map((w) => [`/blog/${w.slug}`, w.data]),
+  ...artykuly.map((a) => [`/blog/${a.slug}`, a.aktualizacja || a.data]),
+])
+/** Wpisy ukryte w panelu przed Google nie trafiają do mapy. */
+const UKRYTE = new Set(artykuly.filter((a) => a.noindex).map((a) => a.slug))
 
 const ADRESY = [
   '/',
@@ -25,7 +31,7 @@ const ADRESY = [
   '/dla-firm/masaz-biurowy-poznan',
   ...miasta.map((m) => `/dla-firm/masaz-biurowy-${m.slug}`),
   '/blog',
-  ...wpisy.map((w) => `/blog/${w.slug}`),
+  ...wpisy.filter((w) => !UKRYTE.has(w.slug)).map((w) => `/blog/${w.slug}`),
   '/faq',
   '/alfabet-dolegliwosci',
   '/masaz-poznan',

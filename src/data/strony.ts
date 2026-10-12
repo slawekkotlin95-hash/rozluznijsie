@@ -52,12 +52,9 @@ export interface Wpis {
 }
 
 /**
- * Blog. Tytuły skrócone, bo stare były dopisane frazą „masaż Poznań".
- *
- * Daty: WordPress nie oddał metadanych przy zrzucie, więc kolejność odtworzona
- * jest z archiwum starej „Bazy wiedzy" (leciało od najnowszego), a miesiące
- * z katalogów `wp-content/uploads/ROK/MIESIĄC` wyróżnionych obrazków.
- * Dni są przybliżone. Jeśli klient poda prawdziwe daty, podmienić tutaj.
+ * Blog. Wszystkie wpisy, także te przeniesione z WordPressa, leżą w
+ * `artykuly.json` i edytuje się je w panelu /admin. Tutaj zostaje tylko
+ * Kobido Up, które ma własną, bogatszą podstronę.
  */
 import { artykuly } from './artykuly'
 
@@ -75,19 +72,6 @@ const wpisyZArtykulow: Wpis[] = artykuly.map((a) => ({
 export const wpisy: Wpis[] = [
   ...wpisyZArtykulow,
   { slug: 'masaz-kobido-up-poznan', zrodlo: '', wlasny: true, minuty: 26, data: '2026-08-20', tytul: 'Masaż Kobido Up Poznań: na czym polega i jakie daje efekty', lead: 'Japoński lifting twarzy krok po kroku: przebieg zabiegu, techniki, efekty, przeciwwskazania i cena.' },
-  { slug: 'ergonomia-pracy', zrodlo: 'ergonomia-pracy-masaz-poznan', data: '2025-12-08', tytul: 'Ergonomia pracy przy biurku', lead: 'Ustawienie monitora, krzesła i przerwy, które faktycznie coś zmieniają.' },
-  { slug: 'napiecie-jesienia', zrodlo: 'dlaczego-nasze-cialo-napina-sie-jesienia-masaz-poznan', data: '2025-10-13', tytul: 'Dlaczego ciało napina się jesienią', lead: 'Mniej światła, mniej ruchu i więcej zimna. Ciało reaguje na to bardzo konkretnie.' },
-  { slug: 'tkanki-glebokie-dla-kogo', zrodlo: 'masaz-tkanek-glebokich-dla-kogo-poznan', data: '2025-09-15', tytul: 'Masaż tkanek głębokich dla kogo', lead: 'Mocna praca, która nie każdemu jest potrzebna. Sprawdź, czy to zabieg dla Ciebie.' },
-  { slug: 'masaz-a-sen', zrodlo: 'masaz-a-sen-poznan-winiary', data: '2025-08-25', tytul: 'Masaż a sen', lead: 'Dlaczego po dobrym masażie zasypia się szybciej i śpi głębiej.' },
-  { slug: 'stres-a-bol', zrodlo: 'wplyw-stresu-na-bol-a-rola-masazu-poznan', data: '2025-08-11', tytul: 'Wpływ stresu na ból', lead: 'Napięcie psychiczne zamienia się w napięcie mięśniowe. To działa w obie strony.' },
-  { slug: 'przeciazenia-treningowe', zrodlo: 'przeciazenia-aktywnosc-fizyczna-masaz-poznan', data: '2025-07-28', tytul: 'Przeciążenia po treningu', lead: 'Regeneracja to część planu treningowego, nie nagroda za jego wykonanie.' },
-  { slug: 'bol-miedzy-lopatkami', zrodlo: 'bol-miedzy-lopatkami-masaz-poznan', data: '2025-07-14', tytul: 'Ból między łopatkami', lead: 'Klasyczna dolegliwość osób pracujących przy komputerze.' },
-  { slug: 'bol-glowy-i-szyi', zrodlo: 'bol-glowy-i-szyi-masaz-poznan', data: '2025-07-07', tytul: 'Ból głowy i szyi', lead: 'Napięciowe bóle głowy najczęściej zaczynają się w karku i barkach.' },
-  { slug: 'jak-wybrac-masaz', zrodlo: 'na-co-zwrocic-uwage-przy-wyborze-masazu', data: '2025-06-23', tytul: 'Na co zwrócić uwagę przy wyborze masażu', lead: 'Czym różni się masaż relaksacyjny od tkanek głębokich i po czym poznać, że trafiłeś do dobrego gabinetu.' },
-  { slug: 'ile-kosztuje-masaz', zrodlo: 'ile-kosztuje-masaz-w-poznaniu', data: '2025-06-09', tytul: 'Ile kosztuje masaż w Poznaniu', lead: 'Co składa się na cenę zabiegu i dlaczego najtańsza oferta rzadko bywa najlepsza.' },
-  { slug: 'praca-siedzaca', zrodlo: 'negatywne-skutki-pracy-siedzacej-masaz-poznan', data: '2025-05-26', tytul: 'Co robi z ciałem praca siedząca', lead: 'Osiem godzin przy biurku odkłada się w konkretnych partiach mięśni.' },
-  { slug: 'kobido-up', zrodlo: 'masaz-kobido-up-dlaczego-tak-popularny', data: '2025-05-19', tytul: 'Kobido UP i dlaczego stało się tak popularne', lead: 'Japoński masaż twarzy, który działa na mięśnie, a nie tylko na skórę.' },
-  { slug: 'bol-dolnego-odcinka-plecow', zrodlo: 'bol-dolnego-odcinka-plecow', data: '2025-05-12', tytul: 'Ból dolnego odcinka pleców', lead: 'Skąd się bierze, kiedy pomaga masaż, a kiedy trzeba iść do lekarza.' },
 ]
 
 /** Wpisy od najnowszego. Kolejność w tablicy nie ma wtedy znaczenia. */

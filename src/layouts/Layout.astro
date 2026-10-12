@@ -11,8 +11,10 @@ interface Props {
   opis: string
   /** Miniaturka do udostępnień. Domyślnie wspólna wizytówka z `public/og.jpg`. */
   obraz?: string
+  /** Strona widoczna dla ludzi, ale bez indeksowania w Google. */
+  noindex?: boolean
 }
-const { tytul, opis, obraz = '/og.jpg' } = Astro.props
+const { tytul, opis, obraz = '/og.jpg', noindex = false } = Astro.props
 const BAZA = 'https://rozluznijsie.pl'
 const miniaturka = new URL(obraz, BAZA).href
 const wizytowka = {
@@ -64,6 +66,7 @@ const kanoniczny = new URL(Astro.url.pathname, Astro.site ?? 'https://rozluznijs
     <title>{tytul}</title>
     <meta name="description" content={opis} />
     <link rel="canonical" href={kanoniczny} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="icon" href="/favicon.png" type="image/png" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />

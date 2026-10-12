@@ -1,4 +1,4 @@
-import { artykuly } from './artykuly'
+import { artykulyWszystkie } from './artykuly'
 
 /**
  * Zdjęcia przypisane do podstron. Astro wymaga statycznych importów,
@@ -56,12 +56,6 @@ import booksy1 from '../assets/booksy-1.jpeg'
 import booksy2 from '../assets/booksy-2.jpeg'
 import booksy3 from '../assets/booksy-3.jpeg'
 
-// miniatury wpisów, zdjęte z wyróżnionych obrazków starego bloga
-import mJesien from '../assets/ChatGPT-Image-8-paz-2025-11_41_02.png'
-import mSzyja from '../assets/1745875825411.jpg'
-import mLopatki from '../assets/1745875825394.jpg'
-import mPrzeciazenia from '../assets/1745875825372-scaled.jpg'
-import mTkanki from '../assets/1745875825343-scaled.jpg'
 
 export const zdjeciaMasazy: Record<string, ImageMetadata> = {
   'relaksacyjny-poznan': relaksacyjny,
@@ -136,23 +130,29 @@ export const zdjeciaArtykulow: Record<string, ImageMetadata> = {
   dloni,
 }
 
+/**
+ * Zdjęcia wgrane przez panel /admin. Nie mają ręcznych importów, więc bierzemy
+ * je globem — nowy plik w src/assets działa od razu po przebudowaniu strony.
+ */
+const wgrane = import.meta.glob('../assets/**/*.{jpg,jpeg,png,webp,avif}', {
+  eager: true,
+  import: 'default',
+}) as Record<string, ImageMetadata>
+
+/**
+ * Zdjęcie artykułu po kluczu. Najpierw nazwane wpisy z mapy wyżej, potem
+ * nazwa pliku, tak jak zapisuje ją panel (np. „stol-do-masazu.jpg”).
+ */
+export function zdjecieArtykulu(klucz: string): ImageMetadata | undefined {
+  if (zdjeciaArtykulow[klucz]) return zdjeciaArtykulow[klucz]
+  const trafienie = Object.entries(wgrane).find(([sciezka]) => sciezka.endsWith('/' + klucz))
+  return trafienie?.[1]
+}
+
 /** Miniatury wpisów bloga. Klucz to slug wpisu na nowej stronie. */
 export const miniaturyWpisow: Record<string, ImageMetadata> = {
-  ...Object.fromEntries(artykuly.map((a) => [a.slug, zdjeciaArtykulow[a.miniatura]])),
+  ...Object.fromEntries(artykulyWszystkie.map((a) => [a.slug, zdjecieArtykulu(a.miniatura)!])),
   'masaz-kobido-up-poznan': kobido,
-  'jak-wybrac-masaz': gabinet3,
-  'ile-kosztuje-masaz': voucher,
-  'kobido-up': gabinet,
-  'bol-dolnego-odcinka-plecow': spokoj2,
-  'bol-glowy-i-szyi': mSzyja,
-  'bol-miedzy-lopatkami': mLopatki,
-  'praca-siedzaca': spokoj2,
-  'ergonomia-pracy': spokoj2,
-  'masaz-a-sen': spokoj,
-  'stres-a-bol': voucher,
-  'przeciazenia-treningowe': mPrzeciazenia,
-  'tkanki-glebokie-dla-kogo': mTkanki,
-  'napiecie-jesienia': mJesien,
 }
 
 /** Wzory kart podarunkowych do wyboru przy zamówieniu. */
